@@ -27,6 +27,8 @@ jobs:
 
       - run: npm ci
       - run: npx vite build
+        env:
+          MATOMO_SITE_ID: "1"
 
       - uses: actions/upload-pages-artifact@v3
         with:
