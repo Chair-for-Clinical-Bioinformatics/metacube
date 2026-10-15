@@ -1,0 +1,314 @@
+collection_id,publication,citation
+02b01703-bf1b-48de-b99a-23bef8cccc81,Spatially mapping T cell receptors and transcriptomes,Liu et al. (2022) Immunity
+03608e22-227a-4492-910b-3cb3f16f952e,iPain atlas,Techameena et al. (2024) Nat Commun
+03cdc7f4-bd08-49d0-a395-4487c0e5a168,Emphysema Cell Atlas,Wang et al. (2023) Immunity
+03f821b4-87be-4ff4-b65a-b5fc00061da7,Local and systemic responses to SARS-CoV-2 infection in children and adults,Yoshida et al. (2022) Nature
+0434a9d4-85fd-4554-b8e3-cf6c582bb2fa,Acute COVID-19 cohort across a range of WHO categories seen at the Department of Emergency Medicine at MGH,Chan Zuckerberg Initiative Single-Cell COVID-19 Consortia et al. (2020) medRxiv
+05e3d0fc-c9dd-4f14-9163-2b242b3bb5c2,Single cell atlas of the human optic nerve,
+065ad318-59fd-4f8c-b4b1-66caa7665409,Human Oral and Craniofacial Cell Atlas,Fernandes Matuck et al. (2024) bioRxiv
+07e12576-b41b-4350-adfc-059bfc4328ea,Single-cell RNA-seq analysis of Interstitial Lung Disease (ILD) subtypes,Natri et al. (2024) Nat Genet
+0a77d4c0-d5d0-40f0-aa1a-5e1429bcbd7e,A transcriptional cross species map of pancreatic islet cells,Tritschler et al. (2022) Molecular Metabolism
+0a839c4b-10d0-4d64-9272-684c49a2c8ba,COVID-19 immune features revealed by a large-scale single-cell transcriptome atlas,Ren et al. (2021) Cell
+0aab20b3-c30c-4606-bd2e-d20dae739c45,Multiomic Profiling of Human Clonal Hematopoiesis Reveals Genotype and Cell-Specific Inflammatory Pathway Activation,Heimlich et al. (2024) Blood Advances
+0b9d8a04-bb9d-44da-aa27-705bb65b54eb,Tabula Muris Senis,The Tabula Muris Consortium et al. (2020) Nature
+0c8a364b-97b5-4cc8-a593-23c38c6f0ac5,Single-cell and spatial transcriptomics characterisation of the immunological landscape in the healthy and PSC human liver,Andrews et al. (2024) Journal of Hepatology
+0cbf8ef8-87bd-4b51-8521-ec3f68183e11,Single cell atlas of the human trabecular meshwork and ciliary body,
+0d35c0fd-ef0b-4b70-bce6-645a4660e5fa,Molecular Signatures of Resilience to Alzheimer’s Disease in Neocortical Layer 4 Neurons,Dharshini et al. (2024) bioRxiv
+0e54d4de-44f0-4d50-8649-b5c2bbe8f5d1,Exploring the Utility of snRNA-seq in Profiling Human Bladder Tissue: A Comprehensive Comparison with scRNA-seq,Santo et al. (2025) iScience
+0f528c8a-a25c-4840-8fa3-d156fa11086f,An atlas of healthy and injured cell states and niches in the human kidney (Version 1.5),
+0f7d022a-46c7-4e64-be4c-e34adbb78089,Single cell atlas of the human ocular surface,
+0faa1af6-e504-4b88-a47b-69347e1bace5,Single-cell transcriptomics characterization of oligodendrocytes and microglia in white matter aging,Kaya et al. (2022) Nat Neurosci
+0fd39ad7-5d2d-41c2-bda0-c55bde614bdb,A marmoset brain cell census reveals influence of developmental origin and functional class on neuronal identity,Krienen et al. (2023) Sci. Adv.
+10bf5c50-8d85-4c5f-94b4-22c1363d9f31,Intratumoral heterogeneity in recurrent pediatric pilocytic astrocytomas,
+10ec9198-584e-4a7e-8a24-4a332915a4ef,"HTAN-CHOP - Single-cell multiomics reveals increased plasticity, resistant populations, and stem-cell–like blasts in KMT2A-rearranged leukemia",Chen et al. (2022) Blood
+113a558a-e96e-4643-81db-140e95c58578,Single-cell RNA sequencing of glioblastoma cases with tissue sampled from tumor core to macroscopically normal cortex,Mossi Albiach et al. (2023) bioRxiv
+120e86b4-1195-48c5-845b-b98054105eec,Spatiotemporal immune zonation of the human kidney,Stewart et al. (2019) Science
+125eef58-0f61-4963-9b08-53e851ab65fb,Single-cell transcriptomes from human kidneys reveal the cellular identity of renal tumors,Young et al. (2018) Science
+126afc71-47fb-4e9d-8aaf-9d9f61e0ac77,Persistent T cell unresponsiveness associated with chronic visceral leishmaniasis in HIV-coinfected patients,de Vrij et al. (2024) Commun Biol
+13d1c580-4b17-4b2e-85c4-75b36917413f,Single cell derived mRNA signals across human kidney tumors,Young et al. (2021) Nat Commun
+14dc301f-d4fb-4743-a590-aa88d5f1df1a,Integrative single-cell multi-omics of CD19-CARpos and CARneg T cells suggest drivers of immunotherapy response in B-ALL,Guerrero-Murillo et al. (2024) bioRxiv
+16a4f6bc-2457-4e21-9b7a-9ba17c7b66c4,Stromal cell diversity associated with immune evasion in human triple‐negative breast cancer,Wu et al. (2020) The EMBO Journal
+16c1e722-96ae-4bf6-b408-cd7f8918484f,Single nuclei RNA- sequencing from the white matter of individuals with progressive MS and non-neurological controls,Jäkel et al. (2019) Nature
+17481d16-ee44-49e5-bcf0-28c0780d8c4a,Single-Cell Sequencing of Developing Human Gut Reveals Transcriptional Links to Childhood Crohn’s Disease,Elmentaite et al. (2020) Developmental Cell
+180bff9c-c8a5-4539-b13b-ddbc00d643e6,Molecular characterization of selectively vulnerable neurons in Alzheimer's Disease,Leng et al. (2021) Nat Neurosci
+1a3b0b02-e68d-4855-9ec8-c5b13703f052,Single-cell transcriptomic analysis of gingivo-buccal oral cancer reveals two dominant cellular programs,Kurkalang et al. (2023) Cancer Science
+1a486c4c-c115-4721-8c9f-f9f096e10857,Single-cell transcriptomic atlas of the human retina identifies cell types associated with age-related macular degeneration,Menon et al. (2019) Nat Commun
+1b014f39-f202-45ae-bb7d-9286bddd8d8b,Spatial and cell type transcriptional landscape of human cerebellar development,Aldinger et al. (2021) Nat Neurosci
+1ca90a2d-2943-483d-b678-b809bf464c30,SEA-AD: Seattle Alzheimer’s Disease Brain Cell Atlas,Gabitto et al. (2024) Nat Neurosci
+1cbfb478-2c7f-4d15-b522-9f74e9fe52a8,Progressive plasticity during colorectal cancer metastasis,Moorman et al. (2025) Nature
+1d1c7275-476a-49e2-9022-ad1b1c793594,Cell Atlas of The Human Fovea and Peripheral Retina,Yan et al. (2020) Sci Rep
+1df8c90d-d299-4b2e-a54d-a5a80f36e780,"Single-cell analyses of renal cell cancers reveal insights into tumor microenvironment, cell of origin, and therapy response",Zhang et al. (2021) Proc. Natl. Acad. Sci. U.S.A.
+1e313b15-4aca-4e5a-94a3-1093c4c42abd,High-resolution single-cell transcriptomic survey of cardiomyocytes from patients with hypertrophic cardiomyopathy,Lu et al. (2024) Cell Proliferation
+1f0f863f-b69d-4ba3-8bab-d2727dd0aecf,Characterizing smoking-induced transcriptional heterogeneity in the human bronchial epithelium at single-cell resolution,Duclos et al. (2019) Sci. Adv.
+20a1dadf-a3a7-4783-b311-fcff3c457763,Phenotypic variation of transcriptomic cell types in mouse motor cortex,Scala et al. (2021) Nature
+20eea6c8-9d64-42c9-9b6f-c11b5249e0e9,Single-cell genomics improves the discovery of risk variants and genes of atrial fibrillation,Selewa et al. (2023) Nat Commun
+21bbfaec-6958-46bc-b1cd-1535752f6304,Single cell and spatial transcriptomics in Sjögren’s Disease-affected Human Salivary Glands,Pranzatelli et al. (2024) Research Square
+22ccff12-9a18-4b01-ba10-302df57a01f8,Single-nucleus transcriptome analysis reveals cell-type-specific molecular signatures across reward circuitry in the human brain,Tran et al. (2021) Neuron
+24d42e5e-ce6d-45ff-a66b-a3b3b715deaf,Single-cell transcriptomics of human T cells reveals tissue and activation signatures in health and disease,Szabo et al. (2019) Nat Commun
+24e324a1-b42d-4438-9bb5-cf5233fa90b0,Single cell transcriptomic analyses of the dynamic local and systemic response to cardiac injury in mice and zebrafish.,Cortada et al. (2024) Commun Biol
+257ce7fb-ab27-4772-8a06-9fe8385816b2,Human Trophoblast Organoids,Li et al. (2024) Cell Stem Cell
+26b5b4f6-828c-4791-b4a3-abb19e3b1952,Single cell RNA sequencing of bone marrow mononuclear cells from healthy donors and B-cell lymphoma patients following CD19 CAR T-cell therapy,Strati et al. (2023) Cell Reports Medicine
+283d65eb-dd53-496d-adb7-7570c7caa443,Human Brain Cell Atlas v1.0,Siletti et al. (2023) Science
+28e9d721-6816-48a2-8d0b-43bf0b0c0ebc,Single cell transcriptomic profiling identifies molecular phenotypes of newborn human lung cells,Bhattacharya et al. (2024) Genes
+2902f08c-f83c-470e-a541-e463e25e5058,Single-cell reconstruction of follicular remodeling in the human adult ovary,Fan et al. (2019) Nat Commun
+296237e2-393d-4e31-b590-b03f74ac5070,"Mouse pancreatic islet scRNA-seq atlas across sexes, ages, and stress conditions including diabetes",Hrovatin et al. (2023) Nat Metab
+29f92179-ca10-4309-a32b-d383d80347c1,Longitudinal profiling of respiratory and systemic immune responses reveals myeloid cell-driven lung inflammation in severe COVID-19,Szabo et al. (2021) Immunity
+2a0b02c0-fea6-47bd-92b9-9b03f5d2580c,Single cell dissection of plasma cell heterogeneity in symptomatic and asymptomatic myeloma,Ledergor et al. (2018) Nat Med
+2a9a17c9-1f61-4877-b384-b8cd5ffa4085,A molecular cell atlas of COVID-19 initiation in human lung,Wu et al. (2024) Journal of Experimental Medicine
+2b02dff7-e427-4cdc-96fb-c0f354c099aa,Single-Cell Analysis of Crohn’s Disease Lesions Identifies a Pathogenic Cellular Module Associated with Resistance to Anti-TNF Therapy,Martin et al. (2019) Cell
+2bebc4ae-69a2-4001-9d2f-091ec9b4020c,Neural Organoid Hormonal Atlas (NOHA),Matassa et al. (2025) bioRxiv
+2d2e2acd-dade-489f-a2da-6c11aa654028,A human fetal lung cell atlas uncovers proximal-distal gradients of differentiation and key regulators of epithelial fates,He et al. (2022) Cell
+2d40e6a7-f2fd-49ba-9db9-6b97e4c6dad5,Human skeletal muscle ageing atlas,Kedlian et al. (2024) Nat Aging
+2d42fb2f-e635-466e-a2f4-9ea34f2e0feb,Organoid modeling of human fetal lung alveolar development reveals mechanisms of cell fate patterning and neonatal respiratory disease,Lim et al. (2023) Cell Stem Cell
+2f4c738f-e2f3-4553-9db2-0582a38ea4dc,Cell Types of the Human Retina and Its Organoids at Single-Cell Resolution,Cowan et al. (2020) Cell
+2f75d249-1bec-459b-bf2b-b86221097ced,Azimuth meta-analysis of human scRNA-seq datasets,
+307ce143-7cc8-4813-99b1-3797834149c9,snRNA-seq of human kidney with ureteral obstruction,Reck et al. (2025) Nat Commun
+30af2f92-7d2d-440e-b81c-e66079b5728b,Multi-omic and spatial analysis of mouse kidneys highlights sex-specific differences in gene regulation across the lifespan,Chen et al. (2025) Nat Genet
+3116d060-0a8e-4767-99bb-e866badea1ed,Spatially resolved multiomics of human cardiac niches,Kanemaru et al. (2023) Nature
+31937775-0602-4e52-a799-b6acdd2bac2e,Molecular and spatial signatures of mouse brain aging at single-cell resolution,Allen et al. (2023) Cell
+328d71f0-0ed7-4518-966f-be6bd0797324,The cellular and molecular cardiac tissue responses in human inflammatory cardiomyopathies after SARS-CoV-2 infection and COVID-19 vaccination,Maatz et al. (2025) Nat Cardiovasc Res
+32f2fd23-ec74-486f-9544-e5b2f41725f5,Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro,Garcia-Alonso et al. (2021) Nat Genet
+33d19f34-87f5-455b-8ca5-9023a2e5453d,Intra- and Inter-cellular Rewiring of the Human Colon during Ulcerative Colitis,Smillie et al. (2019) Cell
+3472f32d-4a33-48e2-aad5-666d4631bf4c,A single-cell transcriptome atlas of the adult human retina,Lukowski et al. (2019) EMBO J
+348da6dc-5bf6-435d-adc5-37747b9ae38a,Single-cell multiome of the human retina and deep learning nominate causal variants in complex eye diseases,Wang et al. (2022) Cell Genomics
+34f12de7-c5e5-4813-a136-832677f98ac8,Multi-scale spatial mapping of cell populations across anatomical sites in healthy human skin and basal cell carcinoma,Ganier et al. (2024) Proc. Natl. Acad. Sci. U.S.A.
+350fe77e-cc64-482e-a42a-18bec9e4a629,A single-cell atlas of the aging mouse ovary,Isola et al. (2024) Nat Aging
+35928d1c-36fc-4f93-9a8d-0b921ab41745,HVS: Human variation study,Johansen et al. (2023) Science
+35d0b748-3eed-43a5-a1c4-1dade5ec5ca0,Impaired local intrinsic immunity to SARS-CoV-2 infection in severe COVID-19,Ziegler et al. (2021) Cell
+367d95c0-0eb0-4dae-8276-9407239421ee,"Evolution of cellular diversity in primary motor cortex of human, marmoset monkey, and mouse",Bakken et al. (2021) Nature
+380ade76-e561-49a8-afb2-0f10b39c2c72,A cell atlas of the human fallopian tube throughout the menstrual cycle and menopause,Weigert et al. (2025) Nat Commun
+38833785-fac5-48fd-944a-0f62a4c23ed1,Construction of a human cell landscape at single-cell level,Han et al. (2020) Nature
+398e34a9-8736-4b27-a9a7-31a47a67f446,Comparative Analysis of Commercial Single-Cell RNA Sequencing Technologies,De Simone et al. (2025) Nucleic Acids Research
+3a2af25b-2338-4266-aad3-aa8d07473f50,Single-cell analysis of human B cell maturation predicts how antibody class switching shapes selection dynamics,King et al. (2021) Sci. Immunol.
+3a5dbf8a-9b3e-4309-b4c5-d8a024f83734,Bronchopulmonary Dysplasia,
+3c34e6f1-6827-47dd-8e19-9edcd461893f,Characterisation of human papillomavirus (HPV)-positive (immune hot) and HPV-negative (immune cold) head and neck tumors by single cell RNA sequencing,Jenkins et al. (2025) Mol Cancer
+3c4f0970-7614-43de-beb7-6128b3cb74ed,Human and mouse dermal fibroblast atlas,Ascensión et al. (2024) bioRxiv
+3db5617e-9f12-4eb4-8416-94893a0d7c46,Epithelial zonation along the mammalian small intestine defines five discrete metabolic domains,Zwick et al. (2024) Nat Cell Biol
+3f50314f-bdc9-40c6-8e4a-b0901ebfbe4c,Single-cell sequencing links multiregional immune landscapes and tissue-resident T cells in ccRCC to tumor topology and therapy efficacy,Krishna et al. (2021) Cancer Cell
+3f7c572c-cd73-4b51-a313-207c7f20f188,Dissecting novel myeloid-derived cell states through single-cell RNA-Seq and its impact on clinical outcome across tumor types,Guimarães et al. (2024) Nat Commun
+4195ab4c-20bd-4cd3-8b3d-65601277e731,A spatially resolved single cell genomic atlas of the adult human breast,Kumar et al. (2023) Nature
+433700dc-e8a5-48b0-b5cd-beb22f3f88fe,Brain vascular single-cell multi-omics elucidates disease risk associations,
+436154da-bcf1-4130-9c8b-120ff9a888f2,Single-cell RNA-seq reveals the cell-type-specific molecular and genetic associations to lupus,Perez et al. (2022) Science
+43b45a20-a969-49ac-a8e8-8c84b211bd01,Integrated adult and foetal heart single-cell RNA sequencing,Knight-Schrijver et al. (2022) Nat Cardiovasc Res
+43d4bb39-21af-4d05-b973-4c1fed7b916c,Transcriptional Programming of Normal and Inflamed Human Epidermis at Single-Cell Resolution,Cheng et al. (2018) Cell Reports
+4429f25e-5c91-4981-9cf2-6a1044c36732,Single cell atlas of large B-cell lymphoma,Li et al. (2025) Cancer Cell
+44531dd9-1388-4416-a117-af0a99de2294,"Single-Cell, Single-Nucleus, and Spatial RNA Sequencing of the Human Liver Identifies Cholangiocyte and Mesenchymal Heterogeneity",Andrews et al. (2022) Hepatol Commun
+45d5d2c3-bc28-4814-aed6-0bb6f0e11c82,"A single-cell transcriptional timelapse of mouse embryonic development, from gastrula to pup",Qiu et al. (2024) Nature
+45f0f67d-4b69-4a3c-a4e8-a63b962e843f,Shared and distinct transcriptomic cell types across neocortical areas,Tasic et al. (2018) Nature
+4796c91c-9d8f-4692-be43-347b1727f9d8,MSK SPECTRUM – Ovarian cancer mutational processes drive site-specific immune evasion,Vázquez-García et al. (2022) Nature
+48259aa8-f168-4bf5-b797-af8e88da6637,Human breast cell atlas,Reed et al. (2024) Nat Genet
+4828d33d-fb26-42e7-bf36-18293b0eec85,Type I interferon responsive microglia shape cortical development and behavior,Escoubas et al. (2024) Cell
+48c15b0c-6039-4e0f-9668-b6b3c0b830ad,Single cell atlas of the human retinal pigment epithelium and the choroid,
+48d354f5-a5ca-4f35-a3bb-fa3687502252,"LungMAP — The genomic, epigenomic and biophysical cues controlling the emergence of the gas exchange niche in the lung.",Zepp et al. (2021) Science
+4a2c25af-558a-45fc-bc9a-54ec44a1d63f,Developmental Regulation of Endothelial-to-Hematopoietic Transition from iPSCs,Wellington et al. (2024) bioRxiv
+4a9fd4d7-d870-4265-89a5-ad51ab811d89,ScaleBio Single Cell RNA Sequencing of Human PBMCs,
+4b54248f-2165-477c-a027-dd55082e8818,Single cell analysis of mouse and human prostate reveals novel fibroblasts with specialized distribution and microenvironment interactions,Joseph et al. (2021) The Journal of Pathology
+4c6eaf5c-6d57-4c76-b1e9-60df8c655f1e,Single cell atlas of the human retina,Li et al. (2023) bioRxiv
+4cbb929b-b03b-4aa8-a943-00f61dc22641,Multimodal benchmarking dataset for renal cortex characterization (mBDRC),Acera-Mateos et al. (2025) bioRxiv
+4d74781b-8186-4c9a-b659-ff4dc4601d91,"scRNA-seq assessment of the human lung, spleen, and esophagus tissue stability after cold preservation",Madissoon et al. (2020) Genome Biol
+4d82bd8e-8827-410b-8fc7-685b7dd92585,Spatially organized multicellular immune hubs in human colorectal cancer,Pelka et al. (2021) Cell
+4d8fed08-2d6d-4692-b5ea-464f1d072077,Comprehensive cell atlas of the first-trimester developing human brain,Braun et al. (2023) Science
+4dca242c-d302-4dba-a68f-4c61e7bad553,Comparative transcriptomics reveals human-specific cortical features,Jorstad et al. (2023) Science
+4f30b962-d49b-4624-a233-64f048cf8632,A Unique Cellular Organization of Human Distal Airways and Its Disarray in Chronic Obstructive Pulmonary Disease,Rustam et al. (2023) Am J Respir Crit Care Med
+4f889ffc-d4bc-4748-905b-8eb9db47a2ed,Immunophenotyping of COVID-19 and influenza highlights the role of type I interferons in development of severe COVID-19,Lee et al. (2020) Sci. Immunol.
+4fa07e63-f712-4d8c-b885-2c515b5e2743,Immune microniches shape intestinal Treg function,Gu et al. (2024) Nature
+4fefa187-5d14-4f1e-915b-c892ed320aab,A human embryonic limb cell atlas resolved in space and time,Zhang et al. (2024) Nature
+51544e44-293b-4c2b-8c26-560678423380,Multiomics single-cell analysis of human pancreatic islets reveals novel cellular states in health and type 1 diabetes,Fasolino et al. (2022) Nat Metab
+54004c5c-af08-4693-a606-73871b6ef989,Cystic Fibrosis and healthy control biopsy,Berg et al. (2025) Journal of Cystic Fibrosis
+5542eeb0-96ef-4ab9-95ea-eb6abc178461,"Human circulating hematopoietic stem and progenitor cells in aging, cytopenia and MDS",Furer et al. (2025) Nat Med
+558385a4-b7b7-4eca-af0c-9e54d010e8dc,Single-Cell RNAseq analysis of diffuse neoplastic infiltrating cells at the migrating front of human glioblastoma,Darmanis et al. (2017) Cell Reports
+573e2e06-8af0-4d96-bfdd-7d64a4bb9c21,Immune Response mechanisms in the cerebrospinal fluid in leptomeningeal disease at single cell resolution,Nieto et al. (2025) bioRxiv
+579203e2-182f-47bc-8230-7aa47247e2a4,Exploring cellular changes in ruptured human quadriceps tendons at single-cell resolution,Mimpen et al. (2025) The Journal of Physiology
+58e85c2f-d52e-4c19-8393-b854b84d516e,"A pancreatic islet scRNA-seq atlas from 48 non-diabetic, prediabetic and type 2 diabetic individuals of matched demographic and ethnic backgrounds",Bandesh et al. (2025) bioRxiv
+5900dda8-2dc3-4770-b604-084eac1c2c82,Single Cell Multiome Atlas of the Human Fetal Retina,Zuo et al. (2024) Nat Commun
+59c9ecfe-c47d-4a6a-bab0-895cc0c1942b,Dysregulation of brain and choroid plexus cell types in severe COVID-19,Yang et al. (2021) Nature
+59cd85c5-3b22-4035-b628-2a20810ad54b,Generation of complex human induced pluripotent stem cell-derived bone marrow organoids,Frenz-Wiessner et al. (2024) Nat Methods
+5c868b6f-62c5-4532-9d7f-a346ad4b50a7,The landscape of immune dysregulation in Crohn’s disease revealed through single-cell transcriptomic profiling in the ileum and colon,Kong et al. (2023) Immunity
+5d445965-6f1a-4b68-ba3a-b8f765155d3a,A molecular cell atlas of the human lung from single cell RNA sequencing,Travaglini et al. (2020) Nature
+5f80428b-222d-450b-a7de-a408186ceb86,Acute response to pathogens in the early human placenta at single-cell resolution,Hoo et al. (2024) Cell Systems
+60358420-6055-411d-ba4f-e8ac80682a2e,Spatiotemporal analysis of human intestinal development at single-cell resolution,Fawkner-Corbett et al. (2021) Cell
+606dc65c-ebd8-4f93-ac86-d0789c04863f,Mouse Post-Flu Time Series,Niethamer et al. (2025) Cell Stem Cell
+613f5480-4957-4f80-b804-0e2b85ac454c,Mouse perinatal heart maturation scRNA-seq,Feulner et al. (2024) bioRxiv
+61e422dd-c9cd-460e-9b91-72d9517348ef,Integrated cancer cell-specific single-cell RNA-seq datasets of immune checkpoint blockade-treated patients,Gondal et al. (2025) Sci Data
+625f6bf4-2f33-4942-962e-35243d284837,LungMAP — Human data from a broad age healthy donor group,Wang et al. (2020) eLife
+6282a908-f162-44a2-99a3-8a942e4271b2,Integrated human endoderm-derived organoids cell atlas (HEOCA),Xu et al. (2025) Nat Genet
+62e8f058-9c37-48bc-9200-e767f318a8ec,HTAN MSK - Single cell profiling reveals novel tumor and myeloid subpopulations in small cell lung cancer,Chan et al. (2021) Cancer Cell
+62ef75e4-cbea-454e-a0ce-998ec40223d3,Cross-tissue immune cell analysis reveals tissue-specific features in humans,Domínguez Conde et al. (2022) Science
+63d03351-06be-478e-a0db-f7a653b6b19b,Cell atlas of the human ocular anterior segment: Tissue-specific and shared cell types,van Zyl et al. (2022) Proc. Natl. Acad. Sci. U.S.A.
+644927a3-456b-4e64-b7cd-76547bfc694d,"Single cell RNA-seq of slice explant cultures of human embryo telencephalon, cultured using the Organotypic Timelapse recording with Transcriptomic Readout (OTTR) protocol for 4-29 days",Vinsland et al. (2025) bioRxiv
+64b24fda-6591-4ce1-89e7-33eb6c43ad7b,A proximal-to-distal survey of healthy adult human small intestine and colon epithelium by single-cell transcriptomics,Burclaff et al. (2022) Cellular and Molecular Gastroenterology and Hepatology
+661a402a-2a5a-4c71-9b05-b346c57bc451,Single-cell roadmap of human gonadal development,Garcia-Alonso et al. (2022) Nature
+6686ada5-43a8-40b6-9a05-6894503606db,Cellular atlas of the human ovary using morphologically guided spatial transcriptomics and single-cell sequencing,Jones et al. (2024) Sci. Adv.
+67ba665e-0611-4b53-a522-40c2e0dc6df7,Single Cell Atlas of Mouse Healthy Gingiva,Easter et al. (2024) Nat Commun
+68cba939-4e72-4405-80ef-512a05044fba,Profiling the heterogeneity of colorectal cancer consensus molecular subtypes using spatial transcriptomics,Valdeolivas et al. (2024) npj Precis. Onc.
+68e7e5b7-4dc9-4609-832e-7656aa6182ba,Sex-Specific Control of Human Heart Maturation by the Progesterone Receptor,Sim et al. (2021) Circulation
+69f13fde-a4e8-4a32-8b5d-c657ae2f5e9a,LNCS: Atlas of healthy human lymph nodes with and without ex vivo adjuvant stimulation,Fergusson et al. (2025) Cell Reports
+6b701826-37bb-4356-9792-ff41fc4c3161,Single-Nucleus Analysis of Human White Adipose Tissue Reveals Adipocyte Subsets with Distinct Metabolic Profiles,Efthymiou et al. (2025) bioRxiv
+6d203948-a779-4b69-9b3f-1ee1dadc3980,"Differential cell composition and split epidermal differentiation in human palm, sole, and hip skin",Wiedemann et al. (2023) Cell Reports
+6d7d23d0-237d-4430-9200-92858abba2d8,Single-cell census of murine glioblastoma subtypes,Soni et al. (2025) Brain
+6e067060-f7e4-466c-86f3-ec3dd33c0381,Inflammatory blockade prevents injury to the developing pulmonary gas exchange surface in preterm primates,Toth et al. (2022) Sci. Transl. Med.
+6e8c5415-302c-492a-a5f9-f29c57ff18fb,Muraro Pancreas,Muraro et al. (2016) Cell Systems
+6f6d381a-7701-4781-935c-db10d30de293,The integrated Human Lung Cell Atlas,Sikkema et al. (2023) Nat Med
+6ff3401b-d72c-4940-a00c-3f0792397082,SARS-CoV-2 receptor ACE2 and TMPRSS2 are primarily expressed in bronchial transient secretory cells,Lukassen et al. (2020) The EMBO Journal
+71f4bccf-53d4-4c12-9e80-e73bfb89e398,An Integrated Single Cell Atlas of Human Periodontitis,Easter et al. (2024) Nat Commun
+72d37bc9-76cc-442d-9131-da0e273862db,Cellular development and evolution of the mammalian cerebellum,Sepp et al. (2023) Nature
+73f82ac8-15cc-4fcd-87f8-5683723fce7f,Developmental cell programs are co-opted in inflammatory skin disease,Reynolds et al. (2021) Science
+741abcf7-af4b-425d-88db-7e0b0d845719,Single-nucleus transcriptomic analysis of human dorsal root ganglion neurons.,Nguyen et al. (2021) eLife
+74e10dc4-cbb2-4605-a189-8a1cd8e44d8c,Spatial proteogenomics reveals distinct and evolutionarily conserved hepatic macrophage niches,Guilliams et al. (2022) Cell
+7651ac1a-f947-463a-9223-a9e408a41989,Insulin is expressed by enteroendocrine cells during human fetal development,Egozi et al. (2021) Nat Med
+7681c7d7-0168-4892-a547-6f02a6430ace,Distinct microbial and immune niches of the human colon,James et al. (2020) Nat Immunol
+77446b76-1c2d-4a71-8e59-0efd4374d98e,Single-nucleus chromatin accessibility and transcriptomic map of breast tissues of women of diverse genetic ancestry,Bhat-Nakshatri et al. (2024) Nat Med
+77f9d7e9-5675-49c3-abed-ce02f39eef1b,Human Immune Health Atlas,Gong et al. (2025) Nature
+7855daa4-3f34-4aae-b65a-87720c02e7cd,Transcriptomic Analysis of the Ocular Posterior Segment Completes a Cell Atlas of the Human Eye,Monavarfeshani et al. (2023) Proc. Natl. Acad. Sci. U.S.A.
+793fdaec-5067-428a-a9db-ecefe135c945,Blood and immune development in human fetal bone marrow and Down syndrome,Jardine et al. (2021) Nature
+7b9ae565-a781-433d-98d4-430394e7802a,Single nucleus transcriptomic atlas of human foetal tendon,Kurjan et al. (2025) bioRxiv
+7c4552fd-8a6d-4da3-9854-2dfa8baca8bf,Deciphering glial contributions to CSF1R-related disorder via single-nuclear transcriptomic profiling,Pan et al. (2024) acta neuropathol commun
+7d66d871-091f-4602-9f42-85f86d2853e0,Single cell RNA sequencing of the human embryonic meninges at 5-13 weeks post conception,
+7d7cabfd-1d1f-40af-96b7-26a0825a306d,Type I interferon autoantibodies are associated with systemic immune alterations in patients with COVID-19,van der Wijst et al. (2021) Sci. Transl. Med.
+7dd599c5-d25d-40c0-b1a6-8789791ca808,The cellular landscape of breast cancer associated malignant pleural effusions,Whitfield et al. (2023) Clinical &amp; Translational Med
+7e216a15-82df-46ee-b454-d0261d99e5f5,Single-cell multiomic analysis of thymocyte development reveals drivers of CD4+ T cell and CD8+ T cell lineage commitment,Steier et al. (2023) Nat Immunol
+8191c283-0816-424b-9b61-c3e1d6258a77,Spatial multi-omic map of human myocardial infarction,Kuppe et al. (2022) Nature
+83ed3be8-4cb9-43e6-9aaa-3fbbf5d1bd3a,Integrated scRNA-Seq Identifies Human Postnatal Thymus Seeding Progenitors and Regulatory Dynamics of Differentiating Immature Thymocytes,Lavaert et al. (2020) Immunity
+847fafc3-41a1-4a0d-9461-0328c88e9b13,Single-cell transcriptome profiling of the human developing spinal cord reveals a conserved genetic programme with human-specific features,Rayon et al. (2021) Development
+84ce6837-548d-4a1f-919f-0bc0d9a3952f,Population-scale cross-disorder atlas of the human prefrontal cortex at single-cell resolution,Lee et al. (2024) medRxiv
+854c0855-23ad-4362-8b77-6b1639e7a9fc,Automatic cell-type harmonization and integration across Human Cell Atlas datasets,Xu et al. (2023) Cell
+886ff63c-af9e-4fcc-9c51-64a92cb6fd48,Transcriptional profiling of murine oligodendrocyte precursor cells across the lifespan,Heo et al. (2024) bioRxiv
+8c4bcf0d-b4df-45c7-888c-74fb0013e9e7,A single-cell transcriptomic atlas spanning the adult rhesus macaque brain,Chiou et al. (2023) Sci. Adv.
+8c782494-01ed-491b-97b9-6f0d3b76c676,Transcriptomic and spatial dissection of human ex vivo right atrial tissue reveals proinflammatory microvascular changes in ischemic heart disease,Linna-Kuosmanen et al. (2024) Cell Reports Medicine
+8e880741-bf9a-4c8e-9227-934204631d2a,High Resolution Slide-seqV2 Spatial Transcriptomics Enables Discovery of Disease-Specific Cell Neighborhoods and Pathways,Marshall et al. (2022) iScience
+8f126edf-5405-4731-8374-b5ce11f53e82,A blood atlas of COVID-19 defines hallmarks of disease severity and specificity,Ahern et al. (2022) Cell
+8f17ac63-aaba-44b5-9b78-60f121da4c2f,A Coding and Non-Coding Atlas of the Human Arterial Cell,Zhao et al. (2024) bioRxiv
+91c8e321-566f-4f9d-b89e-3a164be654d5,Neuron type-specific effects of human aging and sex on DNA methylation and transcription,Chien et al. (2024) Neuron
+92db8a7e-8761-4317-873f-15606c016ce5,A novel human fetal lung-derived alveolar organoid model reveals mechanisms of surfactant protein C maturation relevant to interstitial lung disease,Lim et al. (2025) EMBO J
+92fde064-2fb4-41f8-b85c-c6904000b859,A comprehensive mouse kidney atlas enables rare cell population characterization and robust marker discovery,Novella-Rausell et al. (2023) iScience
+939769a8-d8d2-4d01-abfc-55699893fd49,Integration of eQTL and a Single-Cell Atlas in the Human Eye Identifies Causal Genes for Age-Related Macular Degeneration,Orozco et al. (2020) Cell Reports
+93eebe82-d8c3-41bc-a906-63b5b5f24a9d,Single-cell proteo-genomic reference maps of the hematopoietic system enable the purification and massive profiling of precisely defined cell states,Triana et al. (2021) Nat Immunol
+9416fa0f-fafa-49df-9b23-0234f513dad3,Differentiation dynamics of mammary epithelial cells revealed by single-cell RNA sequencing,Bach et al. (2017) Nat Commun
+9432ae97-4803-4b9f-8f64-2b41e42ad3cb,Human Breast Cancer Single Cell Atlas,Chen et al. (2025) bioRxiv
+964581c3-b5ac-494d-9bd4-0dcb6fb058da,High-Resolution Transcriptomic Landscape of the Human Submandibular Gland,Horeth et al. (2023) J Dent Res
+968834a0-1895-40df-8720-666029b3bbac,Single cell RNA sequencing of follicular lymphoma,Han et al. (2022) Blood Cancer Discovery
+981b0c87-76d0-4edf-b201-58c52b5cd2f0,Single-cell transcriptomics reveals gene expression dynamics of human fetal kidney development,Hochane et al. (2019) PLoS Biol
+999f2a15-3d7e-440b-96ae-2c806799c08c,"Harmonized single-cell landscape, intercellular crosstalk and tumor architecture of glioblastoma",Ruiz Moreno et al. (2022) bioRxiv
+99be70c4-e534-4413-a607-ce40b3ff2c77,Cell-type specific analysis of physiological action of estrogen inmouse oviducts,McGlade et al. (2021) FASEB j.
+99f1515b-46a2-4bc4-94c3-f62659dc1eb4,A human breast atlas integrating single-cell proteomics and transcriptomics,Gray et al. (2022) Developmental Cell
+9b02383a-9358-4f0f-9795-a891ec523bcc,Single cell transcriptional and chromatin accessibility profiling redefine cellular heterogeneity in the adult human kidney,Muto et al. (2021) Nat Commun
+9c8808ce-1138-4dbe-818c-171cff10e650,A single-cell transcriptional roadmap of the mouse and human lymph node lymphatic vasculature,Xiang et al. (2020) Front. Cardiovasc. Med.
+9d63fcf1-5ca0-4006-8d8f-872f3327dbe9,"Brain matters: Unveiling the Distinct Contributions of Region, Age, and Sex to Glia diversity and CNS Function",Seeker et al. (2023) acta neuropathol commun
+9e4e8f1d-d905-4d4f-b343-84889d0f9ffe,Multimodal single-cell profiling reveals neuronal vulnerability and pathological cell states in focal cortical dysplasia,Galvão et al. (2024) iScience
+9f29fcd0-7075-4420-bd61-e2ec1aebad89,Ischemia Reperfusion Responses in Human Lung Transplants at the Single Cell Resolution,Wong et al. (2024) American Journal of Transplantation
+a064d795-3b77-44ae-9fb5-beb57c567443,Pediatric FGID lamina propria of ileum biopsies.,Zheng et al. (2021) medRxiv
+a0c84e3f-a5ca-4481-b3a5-ccfda0a81ecc,Unified comprehensive single-cell atlas of the mouse retina,Li et al. (2024) iScience
+a18474f4-ff1e-4864-af69-270b956cee5b,Single-cell RNA sequencing unifies developmental programs of Esophageal and Gastric Intestinal Metaplasia,Nowicki-Osuch et al. (2023) Cancer Discovery
+a238e9fa-2bdf-41df-8522-69046f99baff,Single-Cell Analysis of Human Pancreas Reveals Transcriptional Signatures of Aging and Somatic Mutation Patterns,Enge et al. (2017) Cell
+a261413d-835b-4f1e-ab0c-dada55ea6afd,Identification of distinct tumor cell populations and key genetic mechanisms through single cell sequencing in hepatoblastoma,Bondoc et al. (2021) Commun Biol
+a3c37598-b8e8-47db-92a9-eb91a77c9529,Adult mouse cortical cell taxonomy revealed by single cell transcriptomics,Tasic et al. (2016) Nat Neurosci
+a3ffde6c-7ad2-498a-903c-d58e732f7470,Single-nucleus cross-tissue molecular reference maps to decipher disease gene function,Eraslan et al. (2022) Science
+a48f5033-3438-4550-8574-cdff3263fdfd,HTAN VUMC - Differential pre-malignant programs and microenvironment chart distinct paths to malignancy in human colorectal polyps,Chen et al. (2021) Cell
+a66d41a7-f1de-4b70-b983-7a4b790a0d5d,Chromatin accessibility during human first-trimester neurodevelopment,Mannens et al. (2024) Nature
+a72afd53-ab92-4511-88da-252fb0e26b9a,Single-cell atlas of peripheral immune response to SARS-CoV-2 infection,Wilk et al. (2020) Nat Med
+a9254216-6cd8-4186-b32c-349363777584,Single-cell reconstruction of the early maternal–fetal interface in humans,Vento-Tormo et al. (2018) Nature
+a96133de-e951-4e2d-ace6-59db8b3bfb1d,HTAN/HTAPP Broad - Spatio-molecular dissection of the breast cancer metastatic microenvironment,Klughammer et al. (2024) Nat Med
+a98b828a-622a-483a-80e0-15703678befd,HCA kidney seed network: University of Michigan,
+ab6823e0-506e-461b-b1f9-d30e69a01687,Cellular heterogeneity and dynamics of the human uterus in healthy premenopausal women,Ulrich et al. (2024) Proc. Natl. Acad. Sci. U.S.A.
+ad2149fc-19c5-41de-8cfe-44710fbada73,Molecular and cellular dynamics of the developing human neocortex at single-cell resolution,Wang et al. (2025) Nature
+ae1420fe-6630-46ed-8b3d-cc6056a66467,An integrated transcriptomic and epigenomic atlas of mouse primary motor cortex cell types,Yao et al. (2021) Nature
+aee9c366-f2fb-470b-8937-577d5d87d3fc,"Cortical brain samples from C9-ALS, C9-ALS/FTD, C9-FTD patients and age matched controls",Gittings et al. (2023) Acta Neuropathol
+af286675-7167-4816-a907-c72d41b73d37,Single-cell and spatial mapping Identify cell types and signaling Networks in the human ureter,Fink et al. (2022) Developmental Cell
+af500bec-a5d6-4569-9f50-4314f2e7a011,Smoking modulates different secretory subpopulations expressing SARS-CoV-2 entry genes in the nasal and bronchial airways,Xu et al. (2022) Sci Rep
+af893e86-8e9f-41f1-a474-ef05359b1fb7,Single-cell transcriptomic atlas for adult human retina,Liang et al. (2023) Cell Genomics
+b0cf0afa-ec40-4d65-b570-ed4ceacc6813,Integrated analysis of multimodal single-cell data,Hao et al. (2021) Cell
+b0f0b447-ac37-45b0-b1bf-5c0b7d871120,Single-cell genomic profiling of human dopamine neurons identifies a population that selectively degenerates in Parkinson’s disease,Kamath et al. (2022) Nat Neurosci
+b1a879f6-5638-48d3-8f64-f6592c1b1561,Mapping the developing human immune system across organs,Suo et al. (2022) Science
+b3e2c6e3-9b05-4da9-8f42-da38a664b45b,Multimodal single cell sequencing implicates chromatin accessibility and genetic background in diabetic kidney disease progression,Wilson et al. (2022) Nat Commun
+b52eb423-5d0d-4645-b217-e1c6d38b2e72,Cells of the adult human heart,Litviňuková et al. (2020) Nature
+b953c942-f5d8-434f-9da7-e726ba7c1481,Single-soma transcriptomics of tangle-bearing neurons in Alzheimer’s disease,Otero-Garcia et al. (2022) Neuron
+b9fc3d70-5a72-4479-a046-c2cc1ab19efc,A Web Portal and Workbench for Biological Dissection of Single Cell COVID-19 Host Responses,Jin et al. (2021) iScience
+ba84c7ba-8d8c-4720-a76e-3ee37dc89f0b,Human subcutaneous and visceral adipocyte atlases uncover classical and non-classical adipocytes and depot-specific patterns,Lazarescu et al. (2025) Nat Genet
+bacccb91-066d-4453-b70e-59de0b4598cd,Single-cell analysis of prenatal and postnatal human cortical development,Velmeshev et al. (2023) Science
+bae2ee8c-b49c-41d0-9097-960d18a39e20,Time-resolved single-cell analysis of Brca1 associated mammary tumourigenesis reveals aberrant differentiation of luminal progenitors,Bach et al. (2021) Nat Commun
+bcb61471-2a44-4d00-a0af-ff085512674c,An atlas of healthy and injured cell states and niches in the human kidney,Lake et al. (2023) Nature
+bd3f7d45-43a0-4944-8327-62d6c89e2ae1,Single-Cell Transcriptomic Profiling of Human Dental Pulp in Sound and Carious Teeth: A Pilot Study,Opasawatchai et al. (2022) Front. Dent. Med
+bd5230f4-cd76-4d35-9ee5-89b3e7475659,Single cell RNA sequencing of human liver reveals distinct intrahepatic macrophage populations,MacParland et al. (2018) Nat Commun
+bd552f76-1f1b-43a3-b9ee-0aace57e90d6,"Transcriptome Analysis of Archived Tumor Tissues by Visium, GeoMx DSP, and Chromium Methods Reveals Inter- and Intra-Patient Heterogeneity",Dong et al. (2024) bioRxiv
+bdac7a53-fe34-4f04-8c46-f9bd5297c099,Profiling of epithelial functional states and fibroblast phenotypes in hormone therapy-naïve localised prostate cancer,Apostolov et al. (2024) bioRxiv
+be679cb1-35f0-46c9-9a2d-30691862a54a,Ex vivo modelling of human colorectal cancer liver metastasis by normothermic machine perfusion,Trebo et al. (2025) Mol Cancer
+bf325905-5e8e-42e3-933d-9a9053e9af80,Single-cell Atlas of common variable immunodeficiency shows germinal center-associated epigenetic dysregulation in B-cell responses,Rodríguez-Ubreva et al. (2022) Nat Commun
+bfd55632-15e2-4dde-a1b9-02ade511fc4d,Spatial Transcriptomics Reveal Pitfalls and Opportunities for the Detection of Rare High-Plasticity Breast Cancer Subtypes,Coutant et al. (2023) Laboratory Investigation
+c11009b8-b113-4a99-9890-78b2f9df9d79,Human fetal retina atlas v1 - Unraveling the developmental heterogeneity within the human retina to reconstruct the continuity of retinal ganglion cell maturation and stage-specific intrinsic and extrinsic factors,Kriukov et al. (2025) Developmental Biology
+c114c20f-1ef4-49a5-9c2e-d965787fb90c,A human cell atlas of fetal gene expression,Cao et al. (2020) Science
+c1241244-b22d-483d-875b-75699efb9f3c,A spatially resolved atlas of the human lung characterizes a gland-associated immune niche,Madissoon et al. (2023) Nat Genet
+c353707f-09a4-4f12-92a0-cb741e57e5f0,Single-cell transcriptomes of the human skin reveal age-related loss of fibroblast priming,Solé-Boldo et al. (2020) Commun Biol
+c450e15d-321a-42d6-986b-11409d04896d,Thyroid hormone remodels cortex to coordinate body-wide metabolism and exploration,Hochbaum et al. (2024) Cell
+c53573b2-eff4-4c5e-9ad0-b24d422dfd9b,Cross-dementia human brain snRNA-seq (Rexach et al 2024),Rexach et al. (2024) Cell
+c672834e-c3e3-49cb-81a5-4c844be4a975,CITEseq of JDM PBMCs,Rabadam et al. (2024) JCI Insight
+c69bd2e0-32fe-431d-b855-ae2b35d7de84,Wild type adult thymus,
+c8565c6a-01a1-435b-a549-f11b452a83a8,Human developing neocortex by area,Bhaduri et al. (2021) Nature
+c9706a92-0e5f-46c1-96d8-20e42467f287,A single-cell atlas of the healthy breast tissues reveals clinically relevant clusters of breast epithelial cells,Bhat-Nakshatri et al. (2021) Cell Reports Medicine
+cae8bad0-39e9-4771-85a7-822b0e06de9f,Protracted Neuronal Recruitment in the Temporal Lobe of Young Children,Nascimento et al. (2024) Nature
+cc431242-35ea-41e1-a100-41e0dec2665b,Multimodal profiling reveals tissue-directed signatures of human immune cells altered with age,Wells et al. (2025) Nat Immunol
+ce5b6795-dace-408b-b26b-2ab752c3e20d,Single-cell mapping of lymphatic endothelial cells in lymph nodes,Fujimoto et al. (2020) PLoS Biol
+ce781ec4-393a-4902-94a0-5a1ca0b600ca,Single-nuclei multi-omics profiling of human ovary reveals coordinated aging signature and pinpoints causal variants underlying timing of natural menopause,Jin et al. (2022) bioRxiv
+ceb895f4-ff9f-403a-b7c3-187a9657ac2c,Multi-omic profiling of the developing human cerebral cortex at the single cell level,Zhu et al. (2023) Sci. Adv.
+cec4ef8e-1e70-49a2-ae43-1e6bf1fd5978,Transcriptional responses of the human dorsal striatum in opioid use disorder implicates cell type-specifc programs,Phan et al. (2024) Nat Commun
+ced320a1-29f3-47c1-a735-513c7084d508,Asian Immune Diversity Atlas (AIDA),Kock et al. (2025) Cell
+cee845e3-ec04-4781-9e2a-28734bb4f7ba,HTAN CHOP - Longitudinal single-cell multiomic atlas of high-risk neuroblastoma reveals chemotherapy-induced tumor microenvironment rewiring,Yu et al. (2025) Nat Genet
+d0941303-7ce3-4422-9249-cf31eb98c480,HYPOMAP: A comprehensive spatio-cellularmap of the human hypothalamus,Tadross et al. (2025) Nature
+d17249d2-0e6e-4500-abb8-e6c93fa1ac6f,Transcriptomic cytoarchitecture reveals principles of human neocortex organization,Jorstad et al. (2023) Science
+d2684035-a36e-458e-96af-8e37930bfdf6,Single nucleus and spatial transcriptomic profiling of human healthy hamstring tendon,Mimpen et al. (2024) The FASEB Journal
+d36ca85c-3e8b-444c-ba3e-a645040c6185,A molecular atlas of the human postmenopausal fallopian tube and ovary from single-cell RNA and ATAC sequencing,Lengyel et al. (2022) Cell Reports
+d5cad3f0-56b6-4fbe-8f2b-be92a8c7820f,Developmental trajectories of thalamic nuclei revealed by single-cell transcriptome profiling and Shh perturbation,Govek et al. (2022) bioRxiv
+d5d0df8f-4eee-49d8-a221-a288f50a1590,A multi-region single nucleus transcriptomic atlas of Parkinson’s disease,N. M. et al. (2024) Sci Data
+d74b6979-efba-47cd-990a-9d80ccf29055,Spatial transcriptomic maps of whole mouse embryos reveal principles of neural tube patterning,Sampath Kumar et al. (2023) Nat Genet
+d86517f0-fa7e-4266-b82e-a521350d6d36,HypoMap – a unified single cell gene expression atlas of the murine hypothalamus,Steuernagel et al. (2022) Nat Metab
+db468083-041c-41ca-8f6f-bf991a070adf,Stress-induced RNA–chromatin interactions promote endothelial dysfunction,Calandrelli et al. (2020) Nat Commun
+db70986c-7d91-49fe-a399-a4730be394ac,Plaque Atlas,Traeuble et al. (2025) Nat Commun
+dc3a5256-5c39-4a21-ac0c-4ede3e7b2323,Healthy living donor kidney,McEvoy et al. (2022) Nat Commun
+dc4cd1f7-667a-4c29-ae77-9401b9700d7f,Anomalous Epithelial Variations and Ectopic Inflammatory Response in Chronic Obstructive Pulmonary Disease,Watanabe et al. (2022) Am J Respir Cell Mol Biol
+dde06e0f-ab3b-46be-96a2-a8082383c4a1,Single-cell eQTL mapping identifies cell type specific genetic control of autoimmune disease,Yazar et al. (2022) Science
+ddfad306-714d-4cc0-9985-d9072820c530,Single-cell multi-omics analysis of the immune response in COVID-19,Cambridge Institute of Therapeutic Immunology and Infectious Disease-National Institute of Health Research (CITIID-NIHR) COVID-19 BioResource Collaboration et al. (2021) Nat Med
+de13e3e2-23b6-40ed-a413-e9e12d7d3910,A cell atlas of human thymic development defines T cell repertoire formation,Park et al. (2020) Science
+de2cde16-c8d3-4a6d-80be-1be9e879aaca,Human PBMC Glaucoma Atlas - Immune Tolerance to HSP60 Attenuates Neurodegeneration in Glaucoma,
+de379e5f-52d0-498c-9801-0f850823c847,An integrated transcriptomic cell atlas of human neural organoids,He et al. (2024) Nature
+dea97145-f712-431c-a223-6b5f565f362a,A single-cell and spatially resolved atlas of human breast cancers,Wu et al. (2021) Nat Genet
+dfc09a93-bce0-4c77-893d-e153d1b7f9fa,Charting human development using a multi-endodermal organ atlas and organoid models,Yu et al. (2021) Cell
+e02201d7-f49f-401f-baf0-1eb1406546c0,"Early role for a Na+,K+-ATPase (ATP1A3) in brain development",Smith et al. (2021) Proc. Natl. Acad. Sci. U.S.A.
+e1a9ca56-f2ee-435d-980a-4f49ab7a952b,Single-cell RNA-seq analysis reveals cell subsets and gene signatures associated with Rheumatoid Arthritis Disease Activity,Binvignat et al. (2024) JCI Insight
+e1fa9900-3fc9-4b57-9dce-c95724c88716,Molecular and cellular evolution of the primate dorsolateral prefrontal cortex,Ma et al. (2022) Science
+e2a4a67f-6a18-431a-ab9c-6e77dd31cc80,A Cellular Anatomy of the Normal Adult Human Prostate and Prostatic Urethra,Henry et al. (2018) Cell Reports
+e2c257e7-6f79-487c-b81c-39451cd4ab3c,Spatial multiomics map of trophoblast development in early pregnancy,Arutyunyan et al. (2023) Nature
+e33ffcd3-7cbf-4b8c-b0f4-85587ad5019a,Cells of the human intestinal tract mapped across space and time,Elmentaite et al. (2021) Nature
+e3aa612b-0d7d-4d3f-bbea-b8972a74dd4b,A taxonomy of transcriptomic cell types across the isocortex and hippocampal formation,Yao et al. (2021) Cell
+e4c9ed14-e560-4900-a3bf-b0f8d2ce6a10,A molecular single-cell lung atlas of lethal COVID-19,Melms et al. (2021) Nature
+e5f58829-1a66-40b5-a624-9046778e74f5,Tabula Sapiens,The Tabula Sapiens Consortium* et al. (2022) Science
+e75342a8-0f3b-4ec5-8ee1-245a23e0f7cb,Pathogenic variants damage cell composition and single cell transcription in cardiomyopathies,Reichart et al. (2022) Science
+e77163ca-8214-4e86-8b37-4f65a2ddae13,Cellular and transcriptional diversity over the course of human lactation,Nyquist et al. (2022) Proc. Natl. Acad. Sci. U.S.A.
+e9360edf-b0b7-4e01-bce8-e596814f13e7,Multi-omic profiling reveals age-related immune dynamics in healthy adults,Gong et al. (2025) Nature
+e9c73b68-e980-49c2-8d0d-1c9cab21507e,Human photoreceptor cells from different macular subregions have distinct transcriptional profiles,Voigt et al. (2021) Human Molecular Genetics
+e9cf4e8d-05ed-4d95-b550-af35ca219390,Transcriptomic Analysis of Air-Liquid Interface Culture in Human Lung Organoids Reveals Regulators of Epithelial Differentiation,Kim et al. (2024) Cells
+e9eec7f5-8519-42f6-99b4-6dbd9cc5ef03,Humoral immunity at the brain borders in homeostasis,Posner et al. (2022) Current Opinion in Immunology
+eb735cc9-d0a7-48fa-b255-db726bf365af,Sampling peripheral blood and matched nasal swabs from donors with prior immunodeficiencies and autoimmune conditions infected with SARS-CoV-2,Chan Zuckerberg Initiative Single-Cell COVID-19 Consortia et al. (2020) medRxiv
+ec329aed-22bc-4d6e-8935-8282dcb1acac,Early human lung immune cell development and its role in epithelial cell fate,Barnes et al. (2023) Sci. Immunol.
+ec691f5f-0aac-433c-8f78-e7f4b85a05e0,Human γδ T cells in diverse tissues exhibit site-specific maturation dynamics across the lifespan,Gray et al. (2024) Sci. Immunol.
+ecb739c5-fe0d-4b48-81c6-217c4d64eec4,COVID-19 mRNA vaccine elicits a potent adaptive immune response in the absence of persistent inflammation observed in SARS-CoV-2 infection,Ivanova et al. (2023) iScience
+ed9185e3-5b82-40c7-9824-b2141590c7f0,Time-resolved Systems Immunology Reveals a Late Juncture Linked to Fatal COVID-19,Liu et al. (2021) Cell
+edb893ee-4066-4128-9aec-5eb2b03f8287,High-resolution single-cell atlas reveals diversity and plasticity of tumor-associated neutrophils in non-small cell lung cancer,Salcher et al. (2022) Cancer Cell
+eeba7193-4d32-46bd-a21b-089936d60601,Recruited macrophages elicit atrial fibrillation,Hulsmans et al. (2023) Science
+ef9f0fae-c12c-4f1a-bb67-63346c2ae0f1,Single Nuclei Atlas of Innervated and Denervated Mouse Muscle,Ham et al. (2025) Nat Commun
+efd94500-1fdc-4e28-9e9f-a309d0154e21,HTAN MSK - Transcriptional connectivity of regulatory T cells in the tumor microenvironment informs novel combination cancer therapy strategies,Glasner et al. (2023) Nat Immunol
+f11cb29c-b546-4738-9bd8-66ea621a7bd5,Single-cell integration reveals metaplasia in inflammatory gut diseases,Oliver et al. (2024) Nature
+f17b9205-f61f-4a0f-a65a-73ba91c50ade,Resolving cellular and molecular diversity along the hippocampal anterior-to-posterior axis in humans,Ayhan et al. (2021) Neuron
+f30e0bf7-7b03-44b0-b312-cda799ef0240,"iPSC-derived small intestine-on-chip with self-organizing epithelial, mesenchymal and neural cells",Moerkens et al. (2024) Cell Reports
+f406a653-c079-4bf9-aab6-85846c27571d,Simultaneous profiling of transcription and chromatin accessibility at the single-cell level for postnatal human brain development,Clarence et al. (2025) Nat Genet
+f5af7a2f-ab4c-4728-829e-48efb9562105,Single cell RNA sequencing of paw skin from healthy and Col7a1 knockout (RDEB) mice,Anderson-Crannage et al. (2023) Front. Immunol.
+f6c50495-3361-40ed-a819-fb9644396ed9,A Balanced Bone Marrow Reference Map of Hematopoietic Development,Zeng et al. (2025) Blood Cancer Discovery
+f70ebd97-b3bc-44fe-849d-c18e08fe773d,A transcriptomic atlas of the mouse cerebellum reveals regional specializations and novel cell types,Kozareva et al. (2020) bioRxiv
+f7cecffa-00b4-4560-a29a-8ad626b8ee08,Mapping single-cell transcriptomes in the intra-tumoral and associated territories of kidney cancer,Li et al. (2022) Cancer Cell
+f8057c47-fcd8-4fcf-88b0-e2f930080f6e,Single-cell transcriptomics of the human retinal pigment epithelium and choroid in health and macular degeneration,Voigt et al. (2019) Proc. Natl. Acad. Sci. U.S.A.
+f86d6317-7215-409e-bfda-3f4ded3dadaa,Human CellCards Multi-Study CellRef 1.0 Atlas,Guo et al. (2023) Nat Commun
+fbc5881f-1ee3-4ffe-8095-35e15e1a08fc,Urethral luminal epithelia are castration-insensitive cells of the proximal prostate,Joseph et al. (2020) Prostate
+fc19ae6c-d7c1-4dce-b703-62c5d52061b4,A spatial human thymus cell atlas mapped to a continuous tissue axis,Yayon et al. (2024) Nature
+fc77d2ae-247d-44d7-aa24-3f4859254c2c,Cellular heterogeneity of human fallopian tubes in normal and hydrosalpinx disease states identified by scRNA-seq,Ulrich et al. (2021) bioRxiv
+fcb3d1c1-03d2-41ac-8229-458e072b7a1c,Live Human Microglia Single-cell RNA-seq,Olah et al. (2020) Nat Commun
+fe0e718d-2ee9-42cc-894b-0b490f437dfd,A single-cell atlas of human and mouse white adipose tissue,Emont et al. (2022) Nature
+ff668d5d-5b3f-49ee-a007-ff0664bf35ec,Single-cell transcriptome analysis reveals differential nutrient absorption functions in human intestine,Wang et al. (2020) Journal of Experimental Medicine
+ff69f0ee-fef6-4895-9f48-6c64a68c8289,Single-Cell Atlas Of Human Pediatric Liver Reveals Age-Related Hepatic Gene Signatures,Edgar et al. (2025) Hepatology Communications

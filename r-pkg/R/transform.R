@@ -99,6 +99,16 @@ cube_transform <- function(df, config) {
     result$info <- .build_info(df, config$info, x_col, y_col, z_col)
   }
 
+  if (!is.null(config$info_box)) {
+    # Zoom: key by inner axes, scoped by the outer cell (6-part key) so sources
+    # from different outer cells don't bleed together — matches the playground.
+    inner <- .resolve_info_axes(config, x_col, y_col, z_col)
+    is_zoom <- identical(config$drilldown$type, "zoom") && !is.null(config$drilldown$axes)
+    result$infoBox <- .build_info(df, config$info_box, inner[[1]], inner[[2]], inner[[3]],
+                                  outer_cols = if (is_zoom) c(x_col, y_col, z_col) else NULL,
+                                  source_col = .source_column(config))
+  }
+
   breakdown_col <- config$tooltip_breakdown
   if (!is.null(breakdown_col)) {
     # Weight by size_col (the cell's size); colour-only mode -> 1 per row.
@@ -167,6 +177,7 @@ cube_transform <- function(df, config) {
       config$colorPalette <- if (is.character(cfg$color_palette)) list(name = cfg$color_palette) else cfg$color_palette
     if (!is.null(cfg$color_aggregation)) config$colorAggregation <- cfg$color_aggregation
     if (!is.null(cfg$color_label)) config$colorLabel <- cfg$color_label
+    if (!is.null(cfg$color_scale)) config$colorScale <- cfg$color_scale
   } else if (!is.null(cfg$uniform_cell_color)) {
     config$uniformCellColor <- cfg$uniform_cell_color
   }
@@ -176,9 +187,15 @@ cube_transform <- function(df, config) {
   if (!is.null(cfg$accent_color)) config$accent_color <- cfg$accent_color
   if (!is.null(cfg$accent_label)) config$accent_label <- cfg$accent_label
   if (!is.null(cfg$count_label)) config$countLabel <- cfg$count_label
+  if (!is.null(cfg$count_label_legend)) config$countLabelLegend <- cfg$count_label_legend
+  if (!is.null(cfg$label_rotation)) config$labelRotation <- cfg$label_rotation
   if (!is.null(cfg$concentration_thresholds)) config$concentrationThresholds <- cfg$concentration_thresholds
 
   if (!is.null(cfg$slice)) {
+    if (!is.null(cfg$slice$count_column) &&
+        (is.null(colour_value) || cfg$slice$count_column != colour_value))
+      warning(sprintf('slice.count_column "%s" is ignored: the 2D slice sums the magnitude column.',
+                      cfg$slice$count_column))
     count_field <- if (!is.null(cfg$slice$count_column) && !is.null(colour_value) &&
                        cfg$slice$count_column == colour_value) "color" else "size"
     config$slice <- list(
@@ -374,27 +391,46 @@ cube_transform <- function(df, config) {
   result
 }
 
-.build_info <- function(df, info_cfg, x_col, y_col, z_col) {
+.build_info <- function(df, info_cfg, x_col, y_col, z_col,
+                        outer_cols = NULL, source_col = NULL) {
   columns <- info_cfg$columns
   result <- list()
-  groups <- split(df, list(df[[x_col]], df[[y_col]], df[[z_col]]), drop = TRUE)
-  for (key_parts in names(groups)) {
-    g <- groups[[key_parts]]
-    xv <- as.character(g[[x_col]][1]); yv <- as.character(g[[y_col]][1]); zv <- as.character(g[[z_col]][1])
-    key <- paste(xv, yv, zv, sep = "|")
-    entries <- lapply(seq_len(nrow(g)), function(i) {
+  key_cols <- c(outer_cols, x_col, y_col, z_col)
+  key_vec <- do.call(paste, c(lapply(key_cols, function(k) as.character(df[[k]])), sep = "|"))
+  has_na <- Reduce(`|`, lapply(key_cols, function(k) is.na(df[[k]])))
+  use_source <- !is.null(source_col) && source_col %in% names(df)
+  for (key in unique(key_vec[!has_na])) {
+    g <- df[!has_na & key_vec == key, , drop = FALSE]
+    seen <- character(0)
+    entries <- list()
+    for (i in seq_len(nrow(g))) {
       entry <- list()
       for (field in names(columns)) {
         col <- columns[[field]]
-        if (col %in% names(g) && !is.na(g[[col]][i]))
+        if (col %in% names(g) && !is.na(g[[col]][i]) && nzchar(as.character(g[[col]][i])))
           entry[[field]] <- as.character(g[[col]][i])
       }
-      entry
-    })
-    entries <- Filter(function(e) length(e) > 0, entries)
+      if (length(entry) == 0) next
+      # Tag each entry with its source id (the treemap's grouping unit); entries are
+      # deduplicated on all fields, so a source keeps one entry per distinct dataset.
+      if (use_source && !is.na(g[[source_col]][i]))
+        entry[["_source"]] <- as.character(g[[source_col]][i])
+      fp <- paste(names(entry), unlist(entry), sep = "=", collapse = "\x1f")
+      if (fp %in% seen) next
+      seen <- c(seen, fp)
+      entries[[length(entries) + 1]] <- entry
+    }
     if (length(entries) > 0) result[[key]] <- entries
   }
   result
+}
+
+# Column identifying a record's source (the treemap's grouping unit), if any.
+.source_column <- function(cfg) {
+  d <- cfg$drilldown
+  if (!is.null(d$treemap$category_column)) return(d$treemap$category_column)
+  if (identical(d$type, "treemap") && !is.null(d$category_column)) return(d$category_column)
+  cfg$datasets_column
 }
 
 # For a zoom drilldown, the inner-cell axes are the replaced columns (else outer).

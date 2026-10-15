@@ -94,6 +94,8 @@ Requires the `httpuv` package.
 
 ## Config YAML Reference
 
+> **Full reference with all modes and examples:** [docs/config.md](https://github.com/Chair-for-Clinical-Bioinformatics/metacube/blob/main/docs/config.md)
+
 The config can be loaded from a YAML file (`yaml::read_yaml("config.yaml")`) or constructed as a named R list.
 
 ### Minimal config
@@ -143,6 +145,13 @@ color_column: "cell_count"    # numeric column for color gradient (optional)
 datasets_column: "dataset_id" # column of dataset IDs, shown in tooltip (optional)
 priority_column: "priority"   # integer 1–4 for cell rendering priority (optional)
 
+# ── Colour and legend ─────────────────────────────────────────────────────────
+
+count_label: "cells"                   # unit noun for the magnitude
+count_label_legend: "Number of cells"  # legend title (default: "Number of <count_label>")
+color_scale: "sqrt"                    # "linear" (default) | "sqrt" | "log"; switchable in the legend
+label_rotation: "auto"                 # axis labels follow the camera; "horizontal" keeps them level
+
 # ── Drilldown: click a cell to see more detail ────────────────────────────────
 
 drilldown:
@@ -169,7 +178,7 @@ drilldown:
 
 slice:
   fixed_axis: "x"            # "x", "y", or "z" — the axis held fixed
-  count_column: "cell_count" # column to aggregate (defaults to size_column)
+  count_column: "cell_count" # optional; must be the magnitude column (defaults to it)
 
 # ── Info panel: structured text on click ─────────────────────────────────────
 
@@ -180,6 +189,19 @@ info:
     year:   "year"
     doi:    "doi"
     url:    "url"
+
+# Inline info box in the details panel (one card per publication when `title` is set):
+info_box:
+  columns:
+    title:    "publication"
+    citation: "citation"
+    dataset:  "dataset_title"
+    doi:      "doi"
+
+# ── Optional lookup table joined onto the main CSV ────────────────────────────
+
+metadata_csv: "publications.csv"   # path relative to the main CSV / config
+metadata_join_key: "id"
 ```
 
 ### Config options summary
@@ -196,9 +218,20 @@ info:
 | `color_column` | no | Numeric column for color gradient |
 | `datasets_column` | no | Column of dataset/study IDs |
 | `priority_column` | no | Integer 1–4 rendering priority |
+| `count_label` | no | Unit noun for the magnitude, shown next to counts (e.g. `cells`) |
+| `count_label_legend` | no | Colour-legend title (default `Number of <count_label>`) |
+| `color_scale` | no | `linear` (default), `sqrt` or `log` colour scaling; switchable in the legend |
+| `label_rotation` | no | `auto` (default): labels follow the camera; `horizontal`: keep them level |
+| `metadata_csv` / `metadata_join_key` | no | Left-join a lookup CSV (e.g. publication titles) by key |
+| `drilldown.category_label_column` | no | Display label for the treemap source tiles (e.g. citation) |
+| `drilldown.category_noun` | no | Plural noun for the source unit (e.g. `publications`) |
 | `drilldown` | no | Drilldown config (treemap or zoom) |
 | `slice` | no | 2D matrix slice in the details panel |
 | `info` | no | Structured info panel on cell click |
+| `info_box` | no | Structured entries shown inline in the side panel on cell click |
+
+**Slice:** each entry is the summed magnitude (the same number the cube colours by) for one
+combination of the two free axes, at the selected cell's value on `fixed_axis`.
 
 ### Equivalent R list
 

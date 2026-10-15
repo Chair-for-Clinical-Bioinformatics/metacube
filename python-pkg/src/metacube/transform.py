@@ -120,7 +120,13 @@ def csv_to_cube_data(csv_path: str | Path, config_path: str | Path) -> dict[str,
         # For zoom drilldown, key info_box by inner axes so the lookup matches
         # the selected inner cell (which carries inner column values, not outer).
         ix, iy, iz = _resolve_info_axes(cfg, x_col, y_col, z_col)
-        result["infoBox"] = _build_info(df, info_box_cfg, ix, iy, iz)
+        # Zoom: also scope by the outer cell (6-part key) so sources from different
+        # outer cells don't bleed into each other — matches the playground transform.
+        drill = cfg.get("drilldown") or {}
+        outer = (x_col, y_col, z_col) if drill.get("type") == "zoom" and drill.get("axes") else None
+        result["infoBox"] = _build_info(
+            df, info_box_cfg, ix, iy, iz, outer_cols=outer, source_col=_source_column(cfg),
+        )
 
     breakdown_col = cfg.get("tooltip_breakdown")
     if breakdown_col:
@@ -389,6 +395,8 @@ def _build_config(cfg: dict) -> dict[str, Any]:
             config["colorAggregation"] = cfg["color_aggregation"]
         if cfg.get("color_label"):
             config["colorLabel"] = cfg["color_label"]
+        if cfg.get("color_scale"):
+            config["colorScale"] = cfg["color_scale"]
     elif cfg.get("uniform_cell_color"):
         # Only pin an explicit cell colour; otherwise leave the renderer to fall
         # back to the active theme's default (so it stays reactive to light/dark).
@@ -396,6 +404,10 @@ def _build_config(cfg: dict) -> dict[str, Any]:
 
     if cfg.get("count_label"):
         config["countLabel"] = cfg["count_label"]
+    if cfg.get("count_label_legend"):
+        config["countLabelLegend"] = cfg["count_label_legend"]
+    if cfg.get("label_rotation"):
+        config["labelRotation"] = cfg["label_rotation"]
 
     if cfg.get("ghost_datasets"):
         config["ghost_datasets"] = cfg["ghost_datasets"]
@@ -409,6 +421,12 @@ def _build_config(cfg: dict) -> dict[str, Any]:
     slice_cfg = cfg.get("slice")
     if slice_cfg:
         count_col = slice_cfg.get("count_column")
+        if count_col and count_col != colour_value:
+            # The slice sums the per-record magnitude; other columns can't be honoured.
+            warnings.warn(
+                f'slice.count_column "{count_col}" is ignored: the 2D slice sums the '
+                f'magnitude column ({colour_value or "row count"}).'
+            )
         if count_col and count_col == colour_value:
             count_field = "color"
         else:
@@ -605,15 +623,29 @@ def _resolve_info_axes(cfg: dict, x_col: str, y_col: str, z_col: str) -> tuple[s
     )
 
 
+def _source_column(cfg: dict) -> str | None:
+    """Column identifying a record's source (the treemap's grouping unit), if any."""
+    drill = cfg.get("drilldown") or {}
+    treemap = drill.get("treemap") or {}
+    return (
+        treemap.get("category_column")
+        or (drill.get("category_column") if drill.get("type") == "treemap" else None)
+        or cfg.get("datasets_column")
+    )
+
+
 def _build_info(
     df: pd.DataFrame,
     info_cfg: dict,
     x_col: str, y_col: str, z_col: str,
+    outer_cols: tuple[str, str, str] | None = None,
+    source_col: str | None = None,
 ) -> dict[str, Any]:
     columns: dict[str, str] = info_cfg.get("columns", {})
     result: dict[str, Any] = {}
-    for (xv, yv, zv), group in df.groupby([x_col, y_col, z_col]):
-        key = f"{xv}|{yv}|{zv}"
+    group_cols = [*(outer_cols or ()), x_col, y_col, z_col]
+    for keys, group in df.groupby(group_cols, sort=False):
+        key = "|".join(str(k) for k in keys)
         seen: set[str] = set()
         entries = []
         for _, row in group.iterrows():
@@ -623,6 +655,11 @@ def _build_info(
                     entry[field] = str(row[col])
             if not entry:
                 continue
+            # Tag each entry with its source id (the treemap's grouping unit) so the
+            # info box can group, count and highlight by source. Entries are deduped
+            # on all fields, so a source keeps one entry per distinct dataset within it.
+            if source_col and source_col in df.columns and pd.notna(row.get(source_col)):
+                entry["_source"] = str(row[source_col])
             fingerprint = json.dumps(entry, sort_keys=True)
             if fingerprint not in seen:
                 seen.add(fingerprint)

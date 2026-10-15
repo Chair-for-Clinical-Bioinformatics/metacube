@@ -17,12 +17,12 @@ pip install metacube
 metacube examples --dest my_data/
 
 # Explore interactively (no files written)
-metacube dev my_data/census_tissue_general_counts.csv \
-  --config my_data/census_tissue_general.yaml
+metacube dev my_data/census_tissue_general_counts_primary.csv \
+  --config my_data/census_tissue_general_zoom.yaml
 
 # Export a standalone HTML file
-metacube export my_data/census_tissue_general_counts.csv \
-  --config my_data/census_tissue_general.yaml \
+metacube export my_data/census_tissue_general_counts_primary.csv \
+  --config my_data/census_tissue_general_zoom.yaml \
   --output viz.html
 ```
 
@@ -154,7 +154,7 @@ metacube build data.json --output shareable.html
 
 ## Config YAML Reference
 
-> **Full reference with all modes and examples:** [docs/config.md](../docs/config.md)
+> **Full reference with all modes and examples:** [docs/config.md](https://github.com/Chair-for-Clinical-Bioinformatics/metacube/blob/main/docs/config.md)
 
 The config YAML maps CSV columns to visualization axes and enables optional features.
 
@@ -200,8 +200,15 @@ axes:
     column: "tissue"
     max_labels: 30
 
-size_colour: "cell_count"     # numeric column for color gradient (omit for flat blue)
+size_colour: "cell_count"     # numeric column for the colour gradient (omit for a single colour)
 datasets_column: "dataset_id" # column of dataset IDs, shown in hover tooltip (optional)
+
+# ── Colour and legend ─────────────────────────────────────────────────────────
+
+count_label: "cells"                   # unit noun for the magnitude 
+count_label_legend: "Number of cells"  # legend title (default: "Number of <count_label>")
+color_scale: "sqrt"                    # "linear" (default) | "sqrt" | "log"; switchable in the legend
+label_rotation: "auto"                 # axis labels follow the camera; "horizontal" keeps them level
 
 # ── Drilldown: click a cell to see more detail ────────────────────────────────
 
@@ -229,7 +236,7 @@ drilldown:
 
 slice:
   fixed_axis: "x"            # "x", "y", or "z" — the axis held fixed
-  count_column: "cell_count" # column to aggregate (optional)
+  count_column: "cell_count" # optional; must be the magnitude column (size_colour)
 
 # ── Info panel: structured text on click ─────────────────────────────────────
 
@@ -240,6 +247,19 @@ info:
     year:   "year"
     doi:    "doi"
     url:    "url"
+
+# Inline info box in the details panel (one card per publication when `title` is set):
+info_box:
+  columns:
+    title:    "publication"
+    citation: "citation"
+    dataset:  "dataset_title"
+    doi:      "doi"
+
+# ── Optional lookup table joined onto the main CSV ────────────────────────────
+
+metadata_csv: "publications.csv"   # path relative to the main CSV / config
+metadata_join_key: "id"
 
 # ── Axis ordering ─────────────────────────────────────────────────────────────
 
@@ -262,13 +282,23 @@ axis_order: "frequency"  # "frequency" (default) or "cluster"
 | `axes.{x,y,z}.max_labels` | no | Keep only top N values by count |
 | `axes.{x,y,z}.colors` | no | Map of value → hex color |
 | `axes.{x,y,z}.group_separator` | no | String to split labels into groups |
-| `size_colour` | no | Numeric column for colour gradient (omit for flat blue) |
+| `size_colour` | no | Numeric column for the colour gradient (omit for a single colour) |
 | `datasets_column` | no | Column of dataset/study IDs, shown in hover tooltip |
+| `count_label` | no | Unit noun for the magnitude, shown next to counts (e.g. `cells`) |
+| `count_label_legend` | no | Colour-legend title (default `Number of <count_label>`) |
+| `color_scale` | no | `linear` (default), `sqrt` or `log` colour scaling; switchable in the legend |
+| `label_rotation` | no | `auto` (default): labels follow the camera; `horizontal`: keep them level |
+| `metadata_csv` / `metadata_join_key` | no | Left-join a lookup CSV (e.g. publication titles) by key |
+| `drilldown.category_label_column` | no | Display label for the treemap source tiles (e.g. citation) |
+| `drilldown.category_noun` | no | Plural noun for the source unit (e.g. `publications`) |
 | `drilldown` | no | Drilldown config (treemap or zoom) |
 | `slice` | no | 2D matrix slice in the details panel |
 | `info` | no | Structured entries shown as center modal on cell click |
 | `info_box` | no | Structured entries shown inline in the side panel on cell click |
 | `axis_order` | no | `"frequency"` (default) or `"cluster"` — see below |
+
+**Slice:** each entry is the summed magnitude (the same number the cube colours by) for one
+combination of the two free axes, at the selected cell's value on `fixed_axis`.
 
 **`axis_order: "frequency"` (default):** labels are presented in descending order of total count, matching the `max_labels` selection rank.
 

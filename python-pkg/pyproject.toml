@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metacube"
-version = "0.1.1"
+version = "0.2.0"
 description = "Interactive 3D cube visualization for multi-dimensional datasets"
 readme = "README.md"
 license = { text = "MIT" }

@@ -6,11 +6,19 @@ axes:
 
 size_colour: "count"
 count_label: "cells"
+count_label_legend: "Number of cells"   # colour-legend title
+color_scale: "sqrt"   # counts span orders of magnitude; sqrt spreads them over the ramp
+
+# Publication titles/citations per collection (scripts/build_census_collections.py).
+metadata_csv: "census_collections.csv"
+metadata_join_key: "collection_id"
 
 info:
   columns:
-    dataset: "dataset_title"
-    doi:     "collection_doi"
+    title:    "publication"      # collection (= publication) title, from metadata_csv
+    citation: "citation"         # e.g. "Siletti et al. (2023) Science"
+    dataset:  "dataset_title"    # the individual Census dataset (H5AD) within it
+    doi:      "collection_doi"
 
 slice:
   fixed_axis: "x"

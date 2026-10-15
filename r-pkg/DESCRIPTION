@@ -1,6 +1,6 @@
 Package: metacube
 Title: Interactive 3D Cube Visualization for Multi-Dimensional Datasets
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("Johanna", "Becher", role = c("aut", "cre"),
            email = "johanna.becher@ccb.uni-saarland.de"),
