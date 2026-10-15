@@ -36,6 +36,11 @@ light:
   edge:                "#d1d5db"
   edge_hover:          "#374151"
   edge_selected:       "#f59e0b"
+  # Selection contrast: unselected cells lose their fill and keep only a
+  # grey (light) / white (dark) outline; selected cells keep colour + strong outline.
+  cell_dim:            "#eef0f3"
+  edge_dim:            "#6b7280"
+  edge_focus:          "#111827"
   wire:                "#9ca3af"
   grid:                "#e5e7eb"
 
@@ -81,9 +86,14 @@ dark:
 
   cell_default:        "#60a5fa"
   cell_accent:         "#fbbf24"
-  edge:                "#cbd5e1"
+  edge:                "#4b5563"
   edge_hover:          "#ffffff"
   edge_selected:       "#fbbf24"
+  # Selection contrast: unselected cells lose their fill and keep only a
+  # grey (light) / white (dark) outline; selected cells keep colour + strong outline.
+  cell_dim:            "#2a3038"
+  edge_dim:            "#ffffff"
+  edge_focus:          "#ffffff"
   wire:                "#64748b"
   grid:                "#475569"
 
@@ -106,4 +116,6 @@ dark:
     - "#2dd4bf"
     - "#facc15"
 
-  size_scale:          { low: "#1e3a8a", mid: "#f59e0b", high: "#fde68a" }
+  # Low end lifted to mid-blue: a dark navy low end vanishes against the dark
+  # background and reads as transparency rather than as a low value.
+  size_scale:          { low: "#4c6edb", mid: "#f59e0b", high: "#fde68a" }

@@ -104,7 +104,7 @@ export function TrivialZoomPanel({ outerCell, innerCell, zoomedAxes, config, tot
             {infoEntries.map((entry, i) => (
               <div key={i} style={{ padding: "10px 12px", background: CARD_BG, border: `1px solid ${PANEL_BORDER}`, borderRadius: 8 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", rowGap: 3, columnGap: 10 }}>
-                  {Object.entries(entry).filter(([k, v]) => !!v && k !== "dataset").map(([key, val]) => {
+                  {Object.entries(entry).filter(([k, v]) => !!v && !k.startsWith("_") && (k !== "dataset" || !!entry.title)).map(([key, val]) => {
                     const isDoi = key === "doi";
                     const isLink = key === "url" || isDoi;
                     const n = parseFloat(val);

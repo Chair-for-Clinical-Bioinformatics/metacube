@@ -42,6 +42,9 @@ interface SceneProps {
   onToggleZ?: (v: string) => void;
   uniformCellColor?: string;
   background?: string;
+  /** WebGL pixel ratio. Default caps at 2× for performance; figure capture passes
+   *  the full device ratio so high-scale screenshots are rendered, not upscaled. */
+  dpr?: number;
 }
 
 export interface SceneHandle {
@@ -51,6 +54,9 @@ export interface SceneHandle {
 
 const DEFAULT_CAM = new THREE.Vector3(6.0, 4.5, 6.0);
 const ZOOM_OFFSET = 0.6;
+const DEFAULT_FOV = 45;
+const MIN_DISTANCE = 0.3;
+const MAX_DISTANCE = 15;
 
 function CameraController(
   { zoomTarget, onZoomComplete, zoomingBack, onZoomBackDone }: {
@@ -137,15 +143,17 @@ export const Scene = forwardRef<SceneHandle, SceneProps>(function Scene(props, r
   }));
 
   const isAnimating = !!(props.zoomTarget || props.zoomingBack);
+  const fov = props.cameraFov ?? DEFAULT_FOV;
 
   return (
     <Canvas
       camera={{
         position: props.cameraPosition ?? [DEFAULT_CAM.x, DEFAULT_CAM.y, DEFAULT_CAM.z],
-        fov: props.cameraFov ?? 45,
+        fov,
         near: 0.1,
         far: 100,
       }}
+      dpr={props.dpr ?? [1, 2]}
       gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
       style={{ width: "100%", height: "100%", background: props.background ?? PAGE_GRADIENT }}
       onPointerMissed={() => { if (!isAnimating) props.onSelect(null!); }}
@@ -161,7 +169,11 @@ export const Scene = forwardRef<SceneHandle, SceneProps>(function Scene(props, r
       <ambientLight intensity={0.95} />
       <directionalLight position={[5, 8, 5]} intensity={0.7} />
       <directionalLight position={[-3, 3, -2]} intensity={0.3} />
-      <OrbitControls enableDamping dampingFactor={0.08} minDistance={0.3} maxDistance={15} enabled={!isAnimating} />
+      <OrbitControls
+        enableDamping dampingFactor={0.08}
+        minDistance={MIN_DISTANCE} maxDistance={MAX_DISTANCE}
+        enabled={!isAnimating}
+      />
       <CubeMap
         records={props.records}
         scaleMode={props.scaleMode}

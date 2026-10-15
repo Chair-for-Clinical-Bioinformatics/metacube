@@ -1,19 +1,20 @@
-import { useState, useMemo, useRef, useEffect, useCallback, Fragment } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { treemap as d3treemap, hierarchy, treemapSquarify } from "d3-hierarchy";
 import type { CubeRecord, CubeCell, InfoEntry, TreemapEntry, ChartSpec } from "../data/dataModel";
 import type { CubeConfig } from "../data/config";
 import { AXIS_COLORS, getAxisColor } from "../data/colors";
 import {
-  PANEL_BG, PANEL_BORDER, CARD_BG, CARD_BG_ACTIVE,
+  PANEL_BG, PANEL_BORDER, CARD_BG,
   TEXT, TEXT_BODY, TEXT_MUTED, TEXT_DIM,
   ACCENT,
 } from "../data/theme";
 import { useTheme } from "../data/themeContext";
 import { CellChart } from "./CellChart";
+import { SourceCards } from "./SourceCards";
 
 const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 const PANEL_W = 300;
-// Max dataset cards in a figure-capture info box (keeps the element under
+// Max publication cards in a figure-capture info box (keeps the element under
 // Playwright's 32767px screenshot limit and readable as a panel).
 const FIGURE_INFOBOX_MAX = 36;
 
@@ -37,14 +38,25 @@ interface DetailsPanelProps {
   charts?: Record<string, ChartSpec>;
   treemapEntries?: TreemapEntry[] | null;
   filterSummary?: FilterSummary | null;
-  /** Called when a dataset card is clicked — receives the value of the "dataset" field. */
-  onDatasetClick?: (datasetKey: string) => void;
-  /** Set of currently highlighted dataset keys (from clicking). */
-  selectedDatasets?: Set<string>;
+  /** Toggle sources (ids from the info box) in the cube highlight selection. */
+  onSourcesToggle?: (ids: string[]) => void;
+  /** Currently highlighted source ids. */
+  selectedSources?: Set<string>;
+  /** Magnitude per source id (for sorting the info box and showing per-source counts). */
+  sourceSizes?: Map<string, number>;
+  /** Source hovered in the treemap (its card is highlighted), and hover callback. */
+  hoveredSource?: string | null;
+  onSourceHover?: (id: string | null) => void;
   /** Start with the 2D-slice matrix expanded (used by figure capture). */
   initialShowMatrix?: boolean;
   /** Render only this section, standalone and unclipped (figure capture). */
   figureCapture?: "slice" | "infobox";
+  /** Plural noun for one info-box source, e.g. "datasets" (from the treemap config). */
+  sourceNoun?: string;
+  /** Pixels to keep free at the bottom of the viewport (another panel lives there). */
+  bottomReserve?: number;
+  /** Hide the 2D-slice toggle (figure capture of the info box only). */
+  hideSlice?: boolean;
 }
 
 function fmt(n: number): string {
@@ -126,7 +138,7 @@ function CellInfo({ cell, config, denominator, denominatorLabel, axes, labelConf
   );
 }
 
-export function DetailsPanel({ cell, outerCell, totalSize, config, records, outerConfig, outerRecords, infoEntries, zoomedAxes, charts, treemapEntries, filterSummary, onDatasetClick, selectedDatasets, initialShowMatrix = false, figureCapture }: DetailsPanelProps) {
+export function DetailsPanel({ cell, outerCell, totalSize, config, records, outerConfig, outerRecords, infoEntries, zoomedAxes, charts, treemapEntries, filterSummary, onSourcesToggle, selectedSources, sourceSizes, hoveredSource, onSourceHover, initialShowMatrix = false, figureCapture, sourceNoun = "datasets", bottomReserve = 0, hideSlice = false }: DetailsPanelProps) {
   const [showMatrix, setShowMatrix] = useState(initialShowMatrix);
   const isZoomMode = outerCell !== undefined;
 
@@ -342,7 +354,7 @@ export function DetailsPanel({ cell, outerCell, totalSize, config, records, oute
   ) : null;
 
   // Interactive slice section: toggle button + (when open) the matrix.
-  const sliceSection = sliceCfg ? (
+  const sliceSection = sliceCfg && !hideSlice ? (
     <div data-testid="slice-section">
       <button
         onClick={() => setShowMatrix((v) => !v)}
@@ -366,69 +378,36 @@ export function DetailsPanel({ cell, outerCell, totalSize, config, records, oute
   // cap it and lay the cards out in columns. The interactive panel is unchanged
   // (scrollable, full list, single column).
   const isInfoFigure = figureCapture === "infobox";
-  const infoShown = isInfoFigure ? (infoEntries ?? []).slice(0, FIGURE_INFOBOX_MAX) : (infoEntries ?? []);
-  const infoHidden = (infoEntries?.length ?? 0) - infoShown.length;
+  // Header counts: sources (matches the treemap's source count) and, when the
+  // entries name datasets, how many datasets those sources comprise.
+  // (Plain computation, not a hook: this runs after the early returns above.)
+  const infoCounts = {
+    sources: new Set((infoEntries ?? []).map((e) => e._source ?? e.title ?? JSON.stringify(e))).size,
+    datasets: (infoEntries ?? []).filter((e) => e.dataset).length,
+  };
+  const plural = (n: number, noun: string) => `${n.toLocaleString()} ${n === 1 ? noun.replace(/s$/, "") : noun}`;
+
+  const infoHeader = infoEntries && infoEntries.length > 0 && !isInfoFigure ? (
+    <div style={{ ...SEC_LBL, marginTop: 12 }}>
+      {plural(infoCounts.sources, sourceNoun)}
+      {infoCounts.datasets > infoCounts.sources && ` · ${plural(infoCounts.datasets, "datasets")}`}
+      {onSourcesToggle && <span style={{ textTransform: "none", fontWeight: 400, color: TEXT_DIM }}> — click to highlight</span>}
+    </div>
+  ) : null;
 
   const infoSection = infoEntries && infoEntries.length > 0 ? (
-    <div
-      data-testid="info-box"
-      style={isInfoFigure
-        ? { marginTop: 10, width: 920, columnCount: 3, columnGap: 14 }
-        : { marginTop: 10, display: "flex", flexDirection: "column", gap: 5 }}
-    >
-      {infoShown.map((entry, i) => {
-        const dsKey = entry["dataset"] as string | undefined;
-        const isActive = dsKey && selectedDatasets?.has(dsKey);
-        const isClickable = !!onDatasetClick && !!dsKey;
-        return (
-        <div key={i}
-          onClick={isClickable ? () => onDatasetClick!(dsKey!) : undefined}
-          style={{
-            padding: "7px 9px",
-            background: isActive ? CARD_BG_ACTIVE : CARD_BG,
-            border: isActive ? `1.5px solid ${ACCENT}` : `1px solid ${PANEL_BORDER}`,
-            borderRadius: 6,
-            cursor: isClickable ? "pointer" : "default",
-            ...(isInfoFigure ? { breakInside: "avoid" as const, marginBottom: 8 } : {}),
-          }}
-        >
-          {(entry.title ?? entry.dataset) && (
-            <div style={{ fontWeight: 700, fontSize: 11.5, color: TEXT_BODY, marginBottom: 3, wordBreak: "break-word" }}>
-              {entry.title ?? entry.dataset}
-            </div>
-          )}
-          <div style={{ display: "grid", gridTemplateColumns: "max-content 1fr", rowGap: 2, columnGap: 8 }}>
-            {Object.entries(entry).filter(([k, v]) => !!v && k !== "dataset" && k !== "title").map(([key, val]) => {
-              const isDoi = key === "doi";
-              const isLink = key === "url" || isDoi;
-              const n = parseFloat(val);
-              const displayVal = !isLink && !isNaN(n) && Number.isInteger(n) && String(n) !== val
-                ? String(n) : val;
-              return (
-                <Fragment key={key}>
-                  <span style={{ color: TEXT_DIM, fontWeight: 600, textTransform: "capitalize", fontSize: 11 }}>
-                    {key}
-                  </span>
-                  {isLink ? (
-                    <a href={isDoi ? `https://doi.org/${val}` : val} target="_blank" rel="noopener noreferrer"
-                      style={{ color: ACCENT, textDecoration: "none", wordBreak: "break-all", fontSize: 11 }}>
-                      {displayVal}
-                    </a>
-                  ) : (
-                    <span style={{ color: TEXT_BODY, wordBreak: "break-word", fontSize: 11 }}>{displayVal}</span>
-                  )}
-                </Fragment>
-              );
-            })}
-          </div>
-        </div>
-        );
-      })}
-      {isInfoFigure && infoHidden > 0 && (
-        <div style={{ breakInside: "avoid", fontSize: 11, color: "#9ca3af", fontStyle: "italic", padding: "4px 2px" }}>
-          + {infoHidden} more dataset{infoHidden === 1 ? "" : "s"}
-        </div>
-      )}
+    <div style={{ marginTop: isInfoFigure ? 0 : 6, ...(isInfoFigure ? { width: 920 } : {}) }}>
+      <SourceCards
+        entries={infoEntries}
+        sizes={sourceSizes}
+        countLabel={config.countLabel}
+        selected={selectedSources}
+        onToggle={onSourcesToggle}
+        hovered={hoveredSource}
+        onHover={onSourceHover}
+        maxGroups={isInfoFigure ? FIGURE_INFOBOX_MAX : undefined}
+        columns={isInfoFigure ? 3 : undefined}
+      />
     </div>
   ) : null;
 
@@ -452,12 +431,13 @@ export function DetailsPanel({ cell, outerCell, totalSize, config, records, oute
   return (
     <div
       ref={containerRef}
+      data-testid="details-panel"
       style={{
         position: "fixed",
         left: panelPos.x, top: panelPos.y,
         width: panelW,
         height: panelH ?? undefined,
-        maxHeight: panelH != null ? undefined : `calc(100vh - ${panelPos.y + 16}px)`,
+        maxHeight: panelH != null ? undefined : `calc(100vh - ${panelPos.y + 16 + bottomReserve}px)`,
         boxSizing: "border-box",
         overflowY: "auto",
         background: PANEL_BG,
@@ -495,6 +475,7 @@ export function DetailsPanel({ cell, outerCell, totalSize, config, records, oute
             </>
           )}
           {chartSection}
+          {infoHeader}
           {infoSection}
           {miniTreemapSection}
         </>
@@ -504,6 +485,7 @@ export function DetailsPanel({ cell, outerCell, totalSize, config, records, oute
           <CellInfo cell={cell!} config={config} denominator={totalSize} denominatorLabel="total" />
           {sliceSection}
           {chartSection}
+          {infoHeader}
           {infoSection}
           {miniTreemapSection}
         </>
@@ -520,7 +502,7 @@ export function DetailsPanel({ cell, outerCell, totalSize, config, records, oute
 
 // ── Filter summary helpers ────────────────────────────────────────────────────
 
-function FilterSummarySection({ summary, config }: { summary: FilterSummary; config: CubeConfig }) {
+function FilterSummarySection({ summary, config, showTitle = true }: { summary: FilterSummary; config: CubeConfig; showTitle?: boolean }) {
   const axes = (
     [
       { ax: "x" as const, values: [...summary.xFilter] },
@@ -531,7 +513,7 @@ function FilterSummarySection({ summary, config }: { summary: FilterSummary; con
 
   return (
     <div>
-      <div style={SEC_LBL}>Filter selection</div>
+      {showTitle && <div style={SEC_LBL}>Filter selection</div>}
       {axes.map(({ ax, values }) => {
         const color = config.axisColors?.[ax] ?? AXIS_COLORS[ax];
         return (
@@ -549,7 +531,7 @@ function FilterSummarySection({ summary, config }: { summary: FilterSummary; con
       <div style={{ marginTop: 5, fontSize: 11 }}>
         <span style={{ color: TEXT_DIM }}>Total: </span>
         <span style={{ fontWeight: 700, color: TEXT }}>{summary.total.toLocaleString()}</span>
-        <span style={{ color: TEXT_DIM }}> entries</span>
+        <span style={{ color: TEXT_DIM }}> {config.countLabel ?? "entries"}</span>
       </div>
     </div>
   );
@@ -612,7 +594,7 @@ export function FilterSummaryPanel({
       }}
     >
       <div style={{ ...SEC_LBL, cursor: "grab" }} onMouseDown={handleDragStart}>Filter selection</div>
-      <FilterSummarySection summary={summary} config={config} />
+      <FilterSummarySection summary={summary} config={config} showTitle={false} />
     </div>
   );
 }

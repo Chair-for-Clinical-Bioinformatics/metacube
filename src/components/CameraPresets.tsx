@@ -4,11 +4,17 @@ interface CameraPresetsProps {
   onSetCamera: (position: [number, number, number]) => void;
 }
 
-const presets: { label: string; pos: [number, number, number] }[] = [
-  { label: "Iso", pos: [6.0, 4.5, 6.0] },
-  { label: "Front", pos: [0, 0, 9] },
-  { label: "Top", pos: [0, 9, 0.01] },
-  { label: "Side", pos: [9, 0, 0] },
+// Distance of the default view from the origin; the axis-aligned views keep it
+// so every preset frames the cube at the same size.
+const DEFAULT_POS: [number, number, number] = [6.0, 4.5, 6.0];
+const DIST = Math.hypot(...DEFAULT_POS);
+
+/** Camera positions exported so figure capture (?camera=…) uses the same views. */
+export const CAMERA_PRESETS: { key: string; label: string; title: string; pos: [number, number, number] }[] = [
+  { key: "default", label: "Default", title: "Default 3/4 view (the start-up camera)", pos: DEFAULT_POS },
+  { key: "front",   label: "Front",   title: "Look along the Z axis", pos: [0, 0, DIST] },
+  { key: "top",     label: "Top",     title: "Look down the Y axis", pos: [0, DIST, 0.01] },
+  { key: "side",    label: "Side",    title: "Look along the X axis", pos: [DIST, 0, 0] },
 ];
 
 const btnStyle: React.CSSProperties = {
@@ -26,6 +32,7 @@ const btnStyle: React.CSSProperties = {
 export function CameraPresets({ onSetCamera }: CameraPresetsProps) {
   return (
     <div
+      data-testid="camera-presets"
       style={{
         position: "fixed",
         top: 12,
@@ -35,8 +42,8 @@ export function CameraPresets({ onSetCamera }: CameraPresetsProps) {
         zIndex: 100,
       }}
     >
-      {presets.map((p) => (
-        <button key={p.label} style={btnStyle} onClick={() => onSetCamera(p.pos)}>
+      {CAMERA_PRESETS.map((p) => (
+        <button key={p.key} style={btnStyle} title={p.title} onClick={() => onSetCamera(p.pos)}>
           {p.label}
         </button>
       ))}

@@ -187,10 +187,37 @@ function resolveType(
   return "sequential";
 }
 
+/** Compression applied to the value before it is mapped onto a sequential ramp.
+ *  Counts often span orders of magnitude (a few huge sources, many small ones), so
+ *  a linear ramp leaves almost everything at the low end; sqrt/log spread the
+ *  low-to-mid range across the palette. Diverging scales are never compressed. */
+export type ColorScaleType = "linear" | "sqrt" | "log";
+
+function compress(t: ColorScaleType | undefined): (v: number) => number {
+  if (t === "sqrt") return (v) => Math.sqrt(Math.max(0, v));
+  if (t === "log") return (v) => Math.log1p(Math.max(0, v));
+  return (v) => v;
+}
+
+function expand(t: ColorScaleType | undefined): (u: number) => number {
+  if (t === "sqrt") return (u) => u * u;
+  if (t === "log") return (u) => Math.expm1(u);
+  return (u) => u;
+}
+
+/** Map a sequential value to its [0,1] position on the (possibly compressed) ramp. */
+function sequentialPosition(minVal: number, maxVal: number, scaleType?: ColorScaleType): (val: number) => number {
+  const f = compress(scaleType);
+  const lo = f(minVal);
+  const range = Math.max(f(maxVal) - lo, scaleType && scaleType !== "linear" ? 1e-9 : 1);
+  return (val: number) => Math.max(0, Math.min(1, (f(val) - lo) / range));
+}
+
 export function createColorScale(
   maxVal: number,
   minVal: number,
   palette?: ColorPaletteConfig,
+  scaleType?: ColorScaleType,
 ): (val: number) => string {
   const type = resolveType(palette, minVal);
   const interpolator = palette?.name ? INTERPOLATORS[palette.name] : undefined;
@@ -212,43 +239,70 @@ export function createColorScale(
     };
   }
 
-  // Sequential
-  if (interpolator) {
-    const range = Math.max(maxVal - minVal, 1);
-    return (val: number) => interpolator(Math.max(0, Math.min(1, (val - minVal) / range)));
-  }
+  // Sequential: every ramp receives the already-compressed [0,1] position.
+  const pos = sequentialPosition(minVal, maxVal, scaleType);
+  if (interpolator) return (val: number) => interpolator(pos(val));
   if (palette?.low_color && palette?.high_color) {
-    const range = Math.max(maxVal - minVal, 1);
     return (val: number) => {
-      const t = Math.max(0, Math.min(1, (val - minVal) / range));
+      const t = pos(val);
       if (!palette.mid_color) return lerpHex(palette.low_color!, palette.high_color!, t);
       if (t <= 0.5) return lerpHex(palette.low_color!, palette.mid_color, t * 2);
       return lerpHex(palette.mid_color, palette.high_color!, (t - 0.5) * 2);
     };
   }
-  return createSizeColorScale(maxVal);
+  const { low, mid, high } = active.size_scale;
+  return (val: number) => {
+    const t = pos(val);
+    if (t <= 0.5) return lerpHex(low, mid, t * 2);
+    return lerpHex(mid, high, (t - 0.5) * 2);
+  };
 }
 
 // ── Legend stops ──────────────────────────────────────────────────────────────
 
 const LEGEND_STOPS = 20;
 
+/** Colours sampled evenly along the ramp (in compressed space for sqrt/log). */
 export function getColorScaleLegendStops(
   maxVal: number,
   minVal: number,
   palette?: ColorPaletteConfig,
+  scaleType?: ColorScaleType,
 ): { color: string }[] {
-  const type = resolveType(palette, minVal);
-  const scale = createColorScale(maxVal, minVal, palette);
-  const absMax = Math.max(Math.abs(minVal), Math.abs(maxVal), 1);
+  const scale = createColorScale(maxVal, minVal, palette, scaleType);
+  return legendTickValues(maxVal, minVal, palette, scaleType, LEGEND_STOPS)
+    .map((val) => ({ color: scale(val) }));
+}
 
-  return Array.from({ length: LEGEND_STOPS }, (_, i) => {
-    const t = i / (LEGEND_STOPS - 1);
-    const val = type === "diverging"
-      ? -absMax + t * 2 * absMax
-      : minVal + t * (maxVal - minVal);
-    return { color: scale(val) };
-  });
+/** `n` data values evenly spaced along the legend bar (left → right). For sqrt/log
+ *  scales they are spaced in compressed space, so a tick at the bar's midpoint
+ *  shows the value that actually sits there. */
+export function legendTickValues(
+  maxVal: number,
+  minVal: number,
+  palette: ColorPaletteConfig | undefined,
+  scaleType: ColorScaleType | undefined,
+  n: number,
+): number[] {
+  if (resolveType(palette, minVal) === "diverging") {
+    const absMax = Math.max(Math.abs(minVal), Math.abs(maxVal), 1);
+    return Array.from({ length: n }, (_, i) => -absMax + (i / (n - 1)) * 2 * absMax);
+  }
+  const f = compress(scaleType);
+  const g = expand(scaleType);
+  const lo = f(minVal);
+  const hi = f(maxVal);
+  return Array.from({ length: n }, (_, i) => g(lo + (i / (n - 1)) * (hi - lo)));
+}
+
+/** Short human label for a colour transform, shown under the legend title. */
+export function colorScaleLabel(scaleType?: ColorScaleType): string {
+  return scaleType === "sqrt" ? "√ scale" : scaleType === "log" ? "log scale" : "linear scale";
+}
+
+/** Resolve whether the active palette renders as a sequential or diverging ramp. */
+export function colorScaleKind(palette: ColorPaletteConfig | undefined, minVal: number): "sequential" | "diverging" {
+  return resolveType(palette, minVal);
 }
 
 /** @deprecated Use getColorScaleLegendStops */

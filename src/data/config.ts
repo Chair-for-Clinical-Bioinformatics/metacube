@@ -56,6 +56,12 @@ export interface CubeConfig {
   colorLabel?: string;
   /** Noun for one unit of the magnitude (size_colour), shown next to counts in the UI, e.g. "cells" or "experiments". Default: "entries"/"Size". */
   countLabel?: string;
+  /** Colour-legend title, e.g. "Number of cells". Falls back to "Number of <countLabel>". */
+  countLabelLegend?: string;
+  /** Value compression applied before the colour ramp. Default "linear". */
+  colorScale?: "linear" | "sqrt" | "log";
+  /** Axis value label orientation: "auto" (perpendicular to the on-screen axis) or "horizontal". Default "auto". */
+  labelRotation?: "auto" | "horizontal";
   slice?: SliceConfig;
   /** Substring to match against dataset keys. Cells whose every dataset key contains this string are rendered as ghost (transparent fill, outline only). */
   ghost_datasets?: string;

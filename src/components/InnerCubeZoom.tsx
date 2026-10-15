@@ -1,50 +1,23 @@
 import { useRef, useCallback, useState, useEffect, useMemo } from "react";
 import type { CubeCell, CubeRecord, InnerCubeData, InfoEntry, ChartSpec } from "../data/dataModel";
-import { buildCubeCells, cellKey, computeDominance } from "../data/dataModel";
-import type { CubeConfig, ColorPaletteConfig, AxisGroup } from "../data/config";
-import { getColorScaleLegendStops } from "../data/colors";
+import { buildCubeCells, cellKey, computeDominance, availableAxisValues } from "../data/dataModel";
+import type { CubeConfig, AxisGroup } from "../data/config";
+import { getColorScaleLegendStops, type ColorScaleType } from "../data/colors";
+import { ColorLegend } from "./ColorLegend";
+import { ThemeToggle } from "./ControlPanel";
+import { toggleSources, cellsWithSources, sourceTotals } from "./SourceCards";
 import {
   PAGE_GRADIENT, PANEL_BG, PANEL_BORDER, CARD_BG,
   TEXT, TEXT_BODY, TEXT_MUTED, TEXT_DIM,
   ACCENT, ACCENT_SOFT_BG, ACCENT_SOFT_BORDER,
 } from "../data/theme";
 
-const DIVERGING_NAMES = new Set([
-  "RdYlGn", "RdYlBu", "RdBu", "RdGy", "PiYG", "PRGn", "PuOr", "BrBG", "Spectral", "RdGn",
-]);
-
-function resolveScaleType(palette: ColorPaletteConfig, minVal: number): "sequential" | "diverging" {
-  if (palette.type) return palette.type;
-  if (palette.name && DIVERGING_NAMES.has(palette.name)) return "diverging";
-  if (minVal < 0) return "diverging";
-  return "sequential";
-}
-
-function fmt(v: number): string {
-  if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(0)}k`;
-  if (Number.isInteger(v)) return String(v);
-  return v.toFixed(1);
-}
-
-function formatLegendVal(
-  palette: ColorPaletteConfig | undefined,
-  minVal: number,
-  maxVal: number,
-  end: "low" | "high",
-): string {
-  if (!palette) return end === "low" ? "0" : fmt(maxVal);
-  if (resolveScaleType(palette, minVal) === "diverging") {
-    const absMax = Math.max(Math.abs(minVal), Math.abs(maxVal), 1);
-    return end === "low" ? fmt(-absMax) : fmt(absMax);
-  }
-  return end === "low" ? fmt(minVal) : fmt(maxVal);
-}
 import { Scene, SceneHandle } from "./Scene";
 import { CameraPresets } from "./CameraPresets";
 import { InfoPanel } from "./InfoPanel";
 import { Tooltip } from "./Tooltip";
 import { DetailsPanel } from "./DetailsPanel";
-import { TreemapOverlay } from "./TreemapOverlay";
+import { TreemapOverlay, TREEMAP_PANEL_H } from "./TreemapOverlay";
 import type { TreemapEntry } from "../data/dataModel";
 
 const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif";
@@ -69,6 +42,16 @@ interface InnerCubeZoomProps {
   autoExpandSlice?: boolean;
   /** Figure capture of a single DetailsPanel section, rendered standalone. */
   figureCapture?: "slice" | "infobox";
+  /** Initial size of the treemap panel (bottom right); default 520×340. */
+  treemapSize?: { w: number; h: number };
+  /** Switch the colour transform from the legend (shared with the outer cube). */
+  onColorScaleChange?: (s: ColorScaleType) => void;
+  /** Figure capture of the inner cube with its explanatory panels only: a compact
+   *  legend box (with O), the details panel (info box, no slice) and, optionally,
+   *  the treemap panel — no filters, camera buttons, breadcrumb or tooltip. */
+  figurePanels?: { treemap: boolean };
+  /** WebGL pixel ratio for the inner scene (figure capture: full device ratio). */
+  dpr?: number;
 }
 
 // ─── Left panel (mirrors ControlPanel) ──────────────────────────────────────
@@ -112,33 +95,15 @@ function DescTooltip({ text, anchor = "bottom" }: { text: string; anchor?: "bott
   );
 }
 
-function DescBadge({ text }: { text: string }) {
-  const [show, setShow] = useState(false);
-  const [pinned, setPinned] = useState(false);
-  return (
-    <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
-      <span
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        onClick={() => setPinned(p => !p)}
-        style={{
-          fontSize: 9, cursor: "pointer",
-          color: pinned ? ACCENT : TEXT_DIM,
-          border: `1px solid ${pinned ? ACCENT_SOFT_BORDER : PANEL_BORDER}`,
-          background: pinned ? ACCENT_SOFT_BG : "transparent",
-          borderRadius: 10, padding: "0 4px", lineHeight: 1.7, fontWeight: 700,
-          userSelect: "none", fontFamily: FONT,
-        }}
-      >?</span>
-      {(show || pinned) && <DescTooltip text={text} />}
-    </span>
-  );
-}
-
-function CheckItem({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) {
+function CheckItem({ label, checked, onChange, available = true }: { label: string; checked: boolean; onChange: () => void; available?: boolean }) {
   const short = label.length > 24 ? label.slice(0, 22) + "…" : label;
   return (
-    <label style={{ display: "flex", alignItems: "center", gap: 5, padding: "1px 0", cursor: "pointer", fontSize: 11, color: checked ? TEXT : TEXT_DIM }}>
+    <label style={{
+      display: "flex", alignItems: "center", gap: 5, padding: "1px 0", cursor: "pointer", fontSize: 11,
+      color: checked ? TEXT : available ? TEXT_BODY : TEXT_DIM,
+      fontWeight: checked ? 600 : 400,
+      opacity: checked || available ? 1 : 0.45,
+    }}>
       <input type="checkbox" checked={checked} onChange={onChange} />
       <span title={label}>{short}</span>
     </label>
@@ -146,9 +111,10 @@ function CheckItem({ label, checked, onChange }: { label: string; checked: boole
 }
 
 function FilterSection({
-  title, items, filter, toggle, setFilter, groups, description,
+  title, items, filter, toggle, setFilter, groups, description, available,
 }: {
   title: string; items: string[]; filter: Set<string>;
+  available?: Set<string>;
   toggle: (v: string) => void; setFilter: (s: Set<string>) => void;
   groups?: AxisGroup[];
   description?: string;
@@ -197,14 +163,14 @@ function FilterSection({
               </label>
               {group.members.map(m => {
                 const sub = m.slice(group.label.length + group.separator.length);
-                return <CheckItem key={m} label={sub} checked={filter.has(m)} onChange={() => toggle(m)} />;
+                return <CheckItem key={m} label={sub} checked={filter.has(m)} onChange={() => toggle(m)} available={!available || available.has(m)} />;
               })}
             </div>
           );
         })
       ) : (
         items.map((v) => (
-          <CheckItem key={v} label={v} checked={filter.has(v)} onChange={() => toggle(v)} />
+          <CheckItem key={v} label={v} checked={filter.has(v)} onChange={() => toggle(v)} available={!available || available.has(v)} />
         ))
       )}
     </div>
@@ -212,16 +178,17 @@ function FilterSection({
 }
 
 function LeftPanel({
-  innerData, config, zoomedAxes, maxColorValue, minColorValue,
+  innerData, config, outerCell, zoomedAxes, maxColorValue, minColorValue,
   xFilter, yFilter, zFilter,
   toggleX, toggleY, toggleZ,
   setXFilter, setYFilter, setZFilter,
   xGroups, yGroups, zGroups,
   cellOpacity, setCellOpacity,
-  onReset, onClear,
+  onReset, onClear, available, onColorScaleChange,
 }: {
   innerData: InnerCubeData;
   config: CubeConfig;
+  outerCell: CubeCell;
   zoomedAxes: ("x" | "y" | "z")[];
   maxColorValue: number;
   minColorValue: number;
@@ -231,13 +198,16 @@ function LeftPanel({
   xGroups?: AxisGroup[]; yGroups?: AxisGroup[]; zGroups?: AxisGroup[];
   cellOpacity: number; setCellOpacity: (v: number) => void;
   onReset: () => void; onClear: () => void;
+  available?: { x: Set<string>; y: Set<string>; z: Set<string> };
+  onColorScaleChange?: (s: ColorScaleType) => void;
 }) {
   const legendStops = maxColorValue > 0
-    ? getColorScaleLegendStops(maxColorValue, minColorValue, config.colorPalette)
+    ? getColorScaleLegendStops(maxColorValue, minColorValue, config.colorPalette, config.colorScale)
     : null;
 
   return (
-    <div style={LP}>
+    <div data-testid="control-panel" style={LP}>
+      <ThemeToggle />
       <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10, color: TEXT }}>
         {zoomedAxes.map((ax, i) => (
           <span key={ax}>{i > 0 ? " · " : ""}{config.axes[ax].label}</span>
@@ -277,25 +247,17 @@ function LeftPanel({
       )}
 
       {legendStops && (
-        <div style={SEC}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
-            <span style={LBL}>Color scale</span>
-            {config.colorLabel && <DescBadge text={config.colorLabel} />}
-          </div>
-          <div style={{ display: "flex", height: 10, borderRadius: 3, overflow: "hidden", border: `1px solid ${PANEL_BORDER}`, marginBottom: 3 }}>
-            {legendStops.map((s, i) => <div key={i} style={{ flex: 1, background: s.color }} />)}
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, color: TEXT_DIM }}>
-            <span>{formatLegendVal(config.colorPalette, minColorValue, maxColorValue, "low")}</span>
-            {config.colorPalette && resolveScaleType(config.colorPalette, minColorValue) === "diverging" && <span>0</span>}
-            <span>{formatLegendVal(config.colorPalette, minColorValue, maxColorValue, "high")}</span>
-          </div>
-        </div>
+        <ColorLegend
+          config={config} minValue={minColorValue} maxValue={maxColorValue}
+          onScaleChange={onColorScaleChange}
+          scope={`within ${zoomedAxes.map(ax => outerCell[ax]).join(" · ")}`}
+        />
       )}
 
       <FilterSection
         title={`${config.axes.x.label} (X)`}
         items={innerData.xs}
+        available={available?.x}
         filter={xFilter}
         toggle={toggleX}
         setFilter={setXFilter}
@@ -305,6 +267,7 @@ function LeftPanel({
       <FilterSection
         title={`${config.axes.y.label} (Y)`}
         items={innerData.ys}
+        available={available?.y}
         filter={yFilter}
         toggle={toggleY}
         setFilter={setYFilter}
@@ -314,6 +277,7 @@ function LeftPanel({
       <FilterSection
         title={`${config.axes.z.label} (Z)`}
         items={innerData.zs}
+        available={available?.z}
         filter={zFilter}
         toggle={toggleZ}
         groups={zGroups}
@@ -346,7 +310,7 @@ function LeftPanel({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRecords, treemapEntries, info, infoBox, charts, cellBreakdown, datasetTitles, onClose, hideSidePanels = false, cameraPosition, autoExpandSlice = false, figureCapture }: InnerCubeZoomProps) {
+export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRecords, treemapEntries, info, infoBox, charts, cellBreakdown, datasetTitles, onClose, hideSidePanels = false, cameraPosition, autoExpandSlice = false, figureCapture, treemapSize, onColorScaleChange, figurePanels, dpr }: InnerCubeZoomProps) {
   // In figure-capture mode we render only the requested DetailsPanel section,
   // suppressing the breadcrumb and all other side panels.
   const minimalCapture = !!figureCapture;
@@ -357,30 +321,35 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
   const [showInfo, setShowInfo]             = useState(false);
   const [showTreemap, setShowTreemap]       = useState(true);
   const [hoveredStudy, setHoveredStudy]     = useState<string | null>(null);
-  const [selectedDatasets, setSelectedDatasets] = useState<Set<string>>(() => new Set());
+  const [selectedSources, setSelectedSources] = useState<Set<string>>(() => new Set());
 
-  const outerCellKey = `${outerCell.x}|${outerCell.y}|${outerCell.z}`;
+  // Info box / tooltip breakdowns are keyed "outer x|y|z|inner x|y|z", where the
+  // outer part holds each record's own outer values. Axes the zoom does not replace
+  // carry the same column inside and outside, so their outer value is the inner
+  // cell's own value (e.g. a zoom into human blood still shows mouse cells).
+  const outerKeyFor = useCallback((c: CubeCell) => {
+    const drillAxes = config.drilldown?.axes ?? {};
+    return (["x", "y", "z"] as const).map(ax => (drillAxes[ax] ? outerCell[ax] : c[ax])).join("|");
+  }, [config.drilldown?.axes, outerCell]);
 
-  const handleDatasetClick = useCallback((datasetKey: string) => {
-    setSelectedDatasets(prev => {
-      const next = new Set(prev);
-      if (next.has(datasetKey)) next.delete(datasetKey);
-      else next.add(datasetKey);
-      return next;
-    });
+  // Clicking an info-box card or a treemap tile toggles its sources.
+  const handleSourcesToggle = useCallback((ids: string[]) => {
+    setSelectedSources(prev => toggleSources(prev, ids));
   }, []);
 
-  // Cells that contain any of the selected datasets — fed into Scene as selectedCells
-  const datasetHighlightCells = useMemo(() => {
-    if (selectedDatasets.size === 0) return undefined;
+  // Inner cells containing any selected source — fed into Scene as selectedCells.
+  // Uses the per-inner-cell treemaps (they list every source in a cell), falling
+  // back to the records' datasets column for configs without a treemap.
+  const sourceHighlightCells = useMemo(() => {
+    if (selectedSources.size === 0) return undefined;
+    const fromTreemap = cellsWithSources(innerData.treemap, selectedSources);
+    if (fromTreemap) return fromTreemap;
     const result = new Set<string>();
     for (const r of innerData.records) {
-      if (r.datasets.some(d => selectedDatasets.has(d))) {
-        result.add(`${r.x}|${r.y}|${r.z}`);
-      }
+      if (r.datasets.some(d => selectedSources.has(d))) result.add(`${r.x}|${r.y}|${r.z}`);
     }
     return result.size > 0 ? result : undefined;
-  }, [selectedDatasets, innerData.records]);
+  }, [selectedSources, innerData.treemap, innerData.records]);
 
   // Empty set = no filter (all cells at base brightness) — matches outer cube semantics
   const [xFilter, setXFilter] = useState<Set<string>>(() => new Set());
@@ -485,6 +454,9 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
     [selectedCell, cellTreemapEntries, treemapEntries],
   );
 
+  // Cells per source in the panel's scope, for sorting the info box.
+  const panelSourceSizes = useMemo(() => sourceTotals(panelTreemapEntries), [panelTreemapEntries]);
+
   const innerXGroups = useMemo(() => buildInnerGroups(innerData.xs, innerConfig.axes.x.groupSeparator), [innerData.xs, innerConfig.axes.x.groupSeparator]);
   const innerYGroups = useMemo(() => buildInnerGroups(innerData.ys, innerConfig.axes.y.groupSeparator), [innerData.ys, innerConfig.axes.y.groupSeparator]);
   const innerZGroups = useMemo(() => buildInnerGroups(innerData.zs, innerConfig.axes.z.groupSeparator), [innerData.zs, innerConfig.axes.z.groupSeparator]);
@@ -502,9 +474,9 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
 
   const infoBoxEntries = useMemo(() => {
     if (!selectedCell || !infoBox) return null;
-    const key = `${outerCell.x}|${outerCell.y}|${outerCell.z}|${cellKey(selectedCell)}`;
+    const key = `${outerKeyFor(selectedCell)}|${cellKey(selectedCell)}`;
     return infoBox[key] ?? null;
-  }, [selectedCell, infoBox, outerCell]);
+  }, [selectedCell, infoBox, outerKeyFor]);
 
   // All unique dataset entries across every inner cell for this outer cell — shown
   // in the panel immediately when the zoom opens, before any inner cell is selected.
@@ -550,6 +522,10 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
 
   const zoomedAxes = (["x", "y", "z"] as const).filter(ax => config.drilldown?.axes?.[ax]);
 
+  const innerAvailable = useMemo(
+    () => availableAxisValues(innerData.records, xFilter, yFilter, zFilter),
+    [innerData.records, xFilter, yFilter, zFilter],
+  );
   const innerCells = useMemo(() => buildCubeCells(innerData.records, config.colorAggregation), [innerData.records, config.colorAggregation]);
   const maxColorValue = useMemo(
     () => Math.max(...innerCells.map(c => c.color ?? 0), 1),
@@ -567,7 +543,7 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
       fontFamily: FONT,
     }}>
       {/* Centered breadcrumb bar (matches cxg_paperready layout) */}
-      {!minimalCapture && <div style={{
+      {!minimalCapture && !hideSidePanels && !figurePanels && <div data-testid="zoom-header" style={{
         position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)",
         zIndex: 310, display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
         background: PANEL_BG, borderRadius: 8, border: `1px solid ${PANEL_BORDER}`,
@@ -612,6 +588,7 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
         config={innerConfig}
         cellOpacity={cellOpacity}
         cameraPosition={cameraPosition}
+        dpr={dpr}
         uniformCellColor={innerConfig.uniformCellColor}
         background={innerConfig.background}
         xFilter={xFilter}
@@ -619,7 +596,7 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
         zFilter={zFilter}
         hoveredCell={hoveredCell}
         selectedCell={selectedCell}
-        selectedCells={datasetHighlightCells}
+        selectedCells={sourceHighlightCells}
         onHover={setHoveredCell}
         onSelect={handleSelect}
         axisXs={innerData.xs}
@@ -633,13 +610,30 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
         onToggleZ={toggleZ}
       />
 
-      {!hideSidePanels && !minimalCapture && <CameraPresets onSetCamera={handleSetCamera} />}
-      {!hideSidePanels && !minimalCapture && <Tooltip cell={hoveredCell} config={innerConfig} cellBreakdown={cellBreakdown} outerCellKey={outerCellKey} datasetTitles={datasetTitles} dominance={hoveredDominance} />}
+      {!hideSidePanels && !minimalCapture && !figurePanels && <CameraPresets onSetCamera={handleSetCamera} />}
+      {!hideSidePanels && !minimalCapture && !figurePanels && <Tooltip cell={hoveredCell} config={innerConfig} cellBreakdown={cellBreakdown} outerKeyFor={outerKeyFor} datasetTitles={datasetTitles} dominance={hoveredDominance} />}
 
-      {!hideSidePanels && !minimalCapture && (
+      {figurePanels && (
+        <div data-testid="figure-legend" style={{ ...LP, maxHeight: undefined, overflowY: "visible", top: 12, width: 230 }}>
+          <div style={{ fontWeight: 700, fontSize: 12.5, color: TEXT }}>
+            {[outerCell.x, outerCell.y, outerCell.z].join(" · ")}
+          </div>
+          <div style={{ fontSize: 10.5, color: TEXT_MUTED, marginBottom: 6 }}>
+            {(["x", "y", "z"] as const).map(ax => innerConfig.axes[ax].label).join(" × ")}
+            {" · "}O = {(innerOccupancy * 100).toFixed(1)}%
+          </div>
+          <ColorLegend
+            config={innerConfig} minValue={minColorValue} maxValue={maxColorValue}
+            scope={`within ${zoomedAxes.map(ax => outerCell[ax]).join(" · ")}`}
+          />
+        </div>
+      )}
+
+      {!hideSidePanels && !minimalCapture && !figurePanels && (
         <LeftPanel
           innerData={innerData}
           config={innerConfig}
+          outerCell={outerCell}
           zoomedAxes={zoomedAxes}
           maxColorValue={innerConfig.uniformCellColor ? 0 : maxColorValue}
           minColorValue={innerConfig.uniformCellColor ? 0 : minColorValue}
@@ -649,6 +643,8 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
           xGroups={innerXGroups} yGroups={innerYGroups} zGroups={innerZGroups}
           cellOpacity={cellOpacity} setCellOpacity={setCellOpacity}
           onReset={handleReset} onClear={handleClear}
+          available={innerAvailable}
+          onColorScaleChange={onColorScaleChange}
         />
       )}
 
@@ -666,14 +662,21 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
           charts={charts}
           treemapEntries={treemapEntries != null ? selectedCellTreemapEntries : null}
           filterSummary={innerHasFilter ? { xFilter, yFilter, zFilter, total: innerFilterTotal } : null}
-          onDatasetClick={handleDatasetClick}
-          selectedDatasets={selectedDatasets}
+          onSourcesToggle={handleSourcesToggle}
+          selectedSources={selectedSources}
+          sourceSizes={panelSourceSizes}
+          hoveredSource={hoveredStudy}
+          onSourceHover={setHoveredStudy}
           initialShowMatrix={autoExpandSlice}
           figureCapture={figureCapture}
+          hideSlice={!!figurePanels}
+          sourceNoun={config.drilldown?.categoryNoun}
+          // Keep the details panel clear of the treemap panel in the bottom-right corner.
+          bottomReserve={!minimalCapture && treemapEntries && showTreemap && (!figurePanels || figurePanels.treemap) ? (treemapSize?.h ?? TREEMAP_PANEL_H) + 24 : 0}
         />
       )}
 
-      {!hideSidePanels && !minimalCapture && treemapEntries && showTreemap && (
+      {!hideSidePanels && !minimalCapture && treemapEntries && showTreemap && (!figurePanels || figurePanels.treemap) && (
         <TreemapOverlay
           cell={panelCell}
           entries={panelTreemapEntries}
@@ -681,8 +684,11 @@ export function InnerCubeZoom({ outerCell, innerData, config, totalSize, outerRe
           categoryNoun={config.drilldown?.categoryNoun}
           onClose={() => setShowTreemap(false)}
           panel
+          initialSize={treemapSize}
           hoveredStudy={hoveredStudy}
           onStudyHover={setHoveredStudy}
+          selectedSources={selectedSources}
+          onSourcesToggle={handleSourcesToggle}
         />
       )}
 

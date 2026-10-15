@@ -1,6 +1,7 @@
 import { useState } from "react";
-import type { CubeConfig, ColorPaletteConfig, AxisGroup } from "../data/config";
-import { getColorScaleLegendStops, getGroupColor } from "../data/colors";
+import type { CubeConfig, AxisGroup } from "../data/config";
+import { getColorScaleLegendStops, getGroupColor, type ColorScaleType } from "../data/colors";
+import { ColorLegend } from "./ColorLegend";
 import { useTheme } from "../data/themeContext";
 import type { ThemeMode } from "../data/theme";
 import {
@@ -8,24 +9,34 @@ import {
   ACCENT, ACCENT_SOFT_BG, ACCENT_SOFT_BORDER,
 } from "../data/theme";
 
-const DIVERGING_NAMES = new Set([
-  "RdYlGn", "RdYlBu", "RdBu", "RdGy", "PiYG", "PRGn", "PuOr", "BrBG", "Spectral", "RdGn",
-]);
-
-function resolveScaleType(palette: ColorPaletteConfig | undefined, minVal: number): "sequential" | "diverging" {
-  if (palette?.type) return palette.type;
-  if (palette?.name && DIVERGING_NAMES.has(palette.name)) return "diverging";
-  if (minVal < 0) return "diverging";
-  return "sequential";
-}
-
-function fmt(v: number): string {
-  if (Math.abs(v) >= 1000) return `${(v / 1000).toFixed(0)}k`;
-  if (Number.isInteger(v)) return String(v);
-  return v.toFixed(1);
+/** Light / dark mode toggle (also shown in the zoom-mode panel). */
+export function ThemeToggle() {
+  const { mode, setMode } = useTheme();
+  const modeBtn = (m: ThemeMode): React.CSSProperties => ({
+    flex: 1,
+    padding: "3px 0",
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: "pointer",
+    borderRadius: 5,
+    fontFamily: "inherit",
+    background: mode === m ? ACCENT_SOFT_BG : CARD_BG,
+    border: `1px solid ${mode === m ? ACCENT_SOFT_BORDER : PANEL_BORDER}`,
+    color: mode === m ? ACCENT : TEXT_MUTED,
+  });
+  return (
+    <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
+      <button style={modeBtn("light")} onClick={() => setMode("light")}>☀ Light</button>
+      <button style={modeBtn("dark")} onClick={() => setMode("dark")}>☾ Dark</button>
+    </div>
+  );
 }
 
 interface ControlPanelProps {
+  /** Switch the colour transform from the legend (linear / √ / log). */
+  onColorScaleChange?: (s: ColorScaleType) => void;
+  /** Per-axis values with data under the current filters (faceted). */
+  available?: { x: Set<string>; y: Set<string>; z: Set<string> };
   xs: string[];
   ys: string[];
   zs: string[];
@@ -71,29 +82,6 @@ function DescTooltip({ text, anchor = "bottom" }: { text: string; anchor?: "bott
   );
 }
 
-function DescBadge({ text }: { text: string }) {
-  const [show, setShow] = useState(false);
-  const [pinned, setPinned] = useState(false);
-  return (
-    <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
-      <span
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        onClick={() => setPinned(p => !p)}
-        style={{
-          fontSize: 9, cursor: "pointer",
-          color: pinned ? ACCENT : TEXT_DIM,
-          border: `1px solid ${pinned ? ACCENT_SOFT_BORDER : PANEL_BORDER}`,
-          background: pinned ? ACCENT_SOFT_BG : "transparent",
-          borderRadius: 10, padding: "0 4px", lineHeight: 1.7, fontWeight: 700,
-          userSelect: "none", fontFamily: FONT,
-        }}
-      >?</span>
-      {(show || pinned) && <DescTooltip text={text} />}
-    </span>
-  );
-}
-
 const panelStyle: React.CSSProperties = {
   position: "fixed",
   top: 12, left: 12, width: 224,
@@ -122,15 +110,19 @@ const allNoneBtn: React.CSSProperties = {
   color: TEXT_MUTED, borderRadius: 3, cursor: "pointer", lineHeight: 1.4,
 };
 
-function CheckItem({ label, checked, onChange, indent = false }: {
+function CheckItem({ label, checked, onChange, indent = false, available = true }: {
   label: string; checked: boolean; onChange: () => void; indent?: boolean;
+  /** False when the value has no data under the other axes' filters. */
+  available?: boolean;
 }) {
   return (
     <label style={{
       display: "flex", alignItems: "center", gap: 5,
       padding: "2px 0", paddingLeft: indent ? 14 : 0,
       cursor: "pointer", fontSize: 12,
-      color: checked ? TEXT_BODY : TEXT_DIM,
+      color: checked ? TEXT : available ? TEXT_BODY : TEXT_DIM,
+      fontWeight: checked ? 600 : 400,
+      opacity: checked || available ? 1 : 0.45,
     }}>
       <input type="checkbox" checked={checked} onChange={onChange} />
       {label}
@@ -140,10 +132,12 @@ function CheckItem({ label, checked, onChange, indent = false }: {
 
 function AxisSection({
   label, values, filter, toggle, setFilter,
-  groups, config, description,
+  groups, config, description, available,
 }: {
   label: string;
   values: string[];
+  /** Values with data under the other axes' filters (undefined = no filter). */
+  available?: Set<string>;
   filter: Set<string>;
   toggle: (v: string) => void;
   setFilter: (f: Set<string>) => void;
@@ -211,7 +205,7 @@ function AxisSection({
               {group.members.map((m) => {
                 const sub = m.slice(group.label.length + group.separator.length);
                 return (
-                  <CheckItem key={m} label={sub} checked={filter.has(m)} onChange={() => toggle(m)} indent />
+                  <CheckItem key={m} label={sub} checked={filter.has(m)} onChange={() => toggle(m)} indent available={!available || available.has(m)} />
                 );
               })}
             </div>
@@ -219,7 +213,7 @@ function AxisSection({
         })
       ) : (
         values.map((v) => (
-          <CheckItem key={v} label={v} checked={filter.has(v)} onChange={() => toggle(v)} />
+          <CheckItem key={v} label={v} checked={filter.has(v)} onChange={() => toggle(v)} available={!available || available.has(v)} />
         ))
       )}
     </div>
@@ -232,37 +226,21 @@ export function ControlPanel({
   yFilter, toggleY, setYFilter,
   zFilter, toggleZ, setZFilter,
   cellOpacity, setCellOpacity,
-  maxColorValue, minColorValue = 0, onResetView, onClearSelection,
+  maxColorValue, minColorValue = 0, onResetView, onClearSelection, available, onColorScaleChange,
 }: ControlPanelProps) {
-  const { mode, setMode, theme } = useTheme();
+  const { theme } = useTheme();
   // Only show the count gradient when the cube is actually gradient-coloured
   // (size_colour/colour set). A uniform cube has counts too, so gating on
   // maxColorValue alone wrongly shows a scale for single-coloured cubes.
   const showScale = !!config.hasColorValues && !config.uniformCellColor;
   const legendStops = showScale && maxColorValue > 0
-    ? getColorScaleLegendStops(maxColorValue, minColorValue, config.colorPalette)
+    ? getColorScaleLegendStops(maxColorValue, minColorValue, config.colorPalette, config.colorScale)
     : null;
 
-  const modeBtn = (m: ThemeMode, label: string): React.CSSProperties => ({
-    flex: 1,
-    padding: "3px 0",
-    fontSize: 11,
-    fontWeight: 600,
-    cursor: "pointer",
-    borderRadius: 5,
-    fontFamily: "inherit",
-    background: mode === m ? ACCENT_SOFT_BG : CARD_BG,
-    border: `1px solid ${mode === m ? ACCENT_SOFT_BORDER : PANEL_BORDER}`,
-    color: mode === m ? ACCENT : TEXT_MUTED,
-  });
 
   return (
     <div style={panelStyle}>
-      {/* Light / dark mode toggle */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-        <button style={modeBtn("light", "Light")} onClick={() => setMode("light")}>☀ Light</button>
-        <button style={modeBtn("dark", "Dark")} onClick={() => setMode("dark")}>☾ Dark</button>
-      </div>
+      <ThemeToggle />
       <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8, color: TEXT }}>
         {config.title}
       </div>
@@ -300,34 +278,13 @@ export function ControlPanel({
       )}
 
       {legendStops && (
-        <div style={sectionStyle}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 3 }}>
-            <span style={labelStyle}>Color scale</span>
-            {config.colorLabel && <DescBadge text={config.colorLabel} />}
-          </div>
-          <div style={{ display: "flex", height: 10, borderRadius: 3, overflow: "hidden", border: `1px solid ${PANEL_BORDER}`, marginBottom: 3 }}>
-            {legendStops.map((s, i) => <div key={i} style={{ flex: 1, background: s.color }} />)}
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, color: TEXT_DIM }}>
-            {resolveScaleType(config.colorPalette, minColorValue) === "diverging" ? (
-              <>
-                <span>{fmt(-Math.max(Math.abs(minColorValue), Math.abs(maxColorValue)))}</span>
-                <span>0</span>
-                <span>{fmt(Math.max(Math.abs(minColorValue), Math.abs(maxColorValue)))}</span>
-              </>
-            ) : (
-              <>
-                <span>{fmt(minColorValue)}</span>
-                <span>{fmt(maxColorValue)}</span>
-              </>
-            )}
-          </div>
-        </div>
+        <ColorLegend config={config} minValue={minColorValue} maxValue={maxColorValue} onScaleChange={onColorScaleChange} />
       )}
 
       <AxisSection
         label={`${config.axes.x.label} (X)`}
         values={xs}
+        available={available?.x}
         filter={xFilter}
         toggle={toggleX}
         setFilter={setXFilter}
@@ -338,6 +295,7 @@ export function ControlPanel({
       <AxisSection
         label={`${config.axes.y.label} (Y)`}
         values={ys}
+        available={available?.y}
         filter={yFilter}
         toggle={toggleY}
         setFilter={setYFilter}
@@ -348,6 +306,7 @@ export function ControlPanel({
       <AxisSection
         label={`${config.axes.z.label} (Z)`}
         values={zs}
+        available={available?.z}
         filter={zFilter}
         toggle={toggleZ}
         setFilter={setZFilter}

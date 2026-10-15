@@ -40,14 +40,20 @@ function initialMode(): ThemeMode {
 }
 
 export function ThemeProvider(
-  { scheme = DEFAULT_SCHEME, children }: { scheme?: ColourScheme; children: ReactNode },
+  { scheme = DEFAULT_SCHEME, forcedMode, children }: {
+    scheme?: ColourScheme;
+    /** Start in this mode regardless of the remembered/OS choice (e.g. ?theme=dark). */
+    forcedMode?: ThemeMode;
+    children: ReactNode;
+  },
 ) {
-  const [mode, setModeState] = useState<ThemeMode>(initialMode);
+  const [mode, setModeState] = useState<ThemeMode>(() => forcedMode ?? initialMode());
 
-  // Persist the user's explicit choice.
+  // Persist the user's explicit choice (a forced start mode is not a choice).
   useEffect(() => {
+    if (forcedMode && mode === forcedMode) return;
     try { localStorage.setItem(STORAGE_KEY, mode); } catch { /* ignore */ }
-  }, [mode]);
+  }, [mode, forcedMode]);
 
   const setMode = useCallback((m: ThemeMode) => setModeState(m), []);
   const toggleMode = useCallback(

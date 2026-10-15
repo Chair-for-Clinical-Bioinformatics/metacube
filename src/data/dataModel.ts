@@ -183,3 +183,25 @@ export function distanceFromOrigin(
 export function cellKey(cell: { x: string; y: string; z: string }): string {
   return `${cell.x}|${cell.y}|${cell.z}`;
 }
+
+/**
+ * Faceted availability under the current axis filters: for each axis, the values
+ * that occur in at least one cell matching the filters of the *other* two axes
+ * (an axis's own filter is ignored, so its unticked values stay discoverable).
+ * Returns undefined when no filter is active.
+ */
+export function availableAxisValues(
+  cells: { x: string; y: string; z: string }[],
+  xFilter: Set<string>, yFilter: Set<string>, zFilter: Set<string>,
+): { x: Set<string>; y: Set<string>; z: Set<string> } | undefined {
+  if (xFilter.size === 0 && yFilter.size === 0 && zFilter.size === 0) return undefined;
+  const ok = (f: Set<string>, v: string) => f.size === 0 || f.has(v);
+  const out = { x: new Set<string>(), y: new Set<string>(), z: new Set<string>() };
+  for (const c of cells) {
+    const xm = ok(xFilter, c.x), ym = ok(yFilter, c.y), zm = ok(zFilter, c.z);
+    if (ym && zm) out.x.add(c.x);
+    if (xm && zm) out.y.add(c.y);
+    if (xm && ym) out.z.add(c.z);
+  }
+  return out;
+}

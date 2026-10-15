@@ -1,7 +1,7 @@
 import { useMemo, useCallback, useState } from "react";
 import {
   CubeCell, buildCubeCells, getXs, getYs, getZs, CubeRecord,
-  distanceFromOrigin, cellKey,
+  cellKey, availableAxisValues,
 } from "../data/dataModel";
 import { createColorScale } from "../data/colors";
 import { useTheme } from "../data/themeContext";
@@ -80,8 +80,9 @@ export function CubeMap({
     [cells],
   );
   const colorScale = useMemo(
-    () => createColorScale(maxColorValue, minColorValue, config?.colorPalette),
-    [maxColorValue, minColorValue, config?.colorPalette],
+    () => createColorScale(maxColorValue, minColorValue, config?.colorPalette, config?.colorScale),
+    // The default ramp is read from the active theme, so rebuild on light/dark switches.
+    [maxColorValue, minColorValue, config?.colorPalette, config?.colorScale, theme],
   );
 
   const hasIndividualSelection = (selectedCells?.size ?? 0) > 0;
@@ -121,11 +122,6 @@ export function CubeMap({
   const yFor = (j: number) => -half + GAP * (j + 1) + bandY * j + bandY / 2;
   const zFor = (k: number) => -half + GAP * (k + 1) + bandZ * k + bandZ / 2;
 
-  const maxDist = useMemo(
-    () => Math.sqrt(xCount ** 2 + yCount ** 2 + zCount ** 2) / 2,
-    [xCount, yCount, zCount]
-  );
-
   const hasSelection = selectedCell !== null;
 
   const [hoveredAxisSlice, setHoveredAxisSlice] = useState<{ axis: "x" | "y" | "z"; value: string } | null>(null);
@@ -134,26 +130,14 @@ export function CubeMap({
   const dataYs = useMemo(() => new Set(getYs(records)), [records]);
   const dataZs = useMemo(() => new Set(getZs(records)), [records]);
 
-  const filterMatchXs = useMemo(() => {
-    if (!hasActiveFilter) return undefined;
-    const s = new Set<string>();
-    for (const cell of cells) { if (cellMatchesFilter(cell)) s.add(cell.x); }
-    return s;
-  }, [cells, hasActiveFilter, cellMatchesFilter]);
-
-  const filterMatchYs = useMemo(() => {
-    if (!hasActiveFilter) return undefined;
-    const s = new Set<string>();
-    for (const cell of cells) { if (cellMatchesFilter(cell)) s.add(cell.y); }
-    return s;
-  }, [cells, hasActiveFilter, cellMatchesFilter]);
-
-  const filterMatchZs = useMemo(() => {
-    if (!hasActiveFilter) return undefined;
-    const s = new Set<string>();
-    for (const cell of cells) { if (cellMatchesFilter(cell)) s.add(cell.z); }
-    return s;
-  }, [cells, hasActiveFilter, cellMatchesFilter]);
+  // Labels available under the current filters (faceted: an axis ignores its own filter).
+  const available = useMemo(
+    () => availableAxisValues(cells, xFilter, yFilter, zFilter),
+    [cells, xFilter, yFilter, zFilter],
+  );
+  const filterMatchXs = available?.x;
+  const filterMatchYs = available?.y;
+  const filterMatchZs = available?.z;
 
   return (
     <group>
@@ -183,9 +167,6 @@ export function CubeMap({
         const zi = allZs.indexOf(cell.z);
         if (xi === -1 || yi === -1 || zi === -1) return null;
 
-        const dist = distanceFromOrigin(xi, yi, zi);
-        const normDist = dist / maxDist;
-        const distanceFade = Math.max(0.5, 1 - normDist * 0.5);
 
         const color = uniformCellColor
           ?? (config?.hasColorValues ? colorScale(cell.color ?? 0) : theme.cell_default);
@@ -201,12 +182,14 @@ export function CubeMap({
         const isSelected =
           (selectedCell?.x === cell.x && selectedCell?.y === cell.y && selectedCell?.z === cell.z) ||
           isIndividuallySelected;
-        const isDimmed = hasSelection && !isSelected;
         const matchesFilter = cellMatchesFilter(cell);
-        const anySelectionActive = hasActiveFilter || hasIndividualSelection;
-        const filterOpacity = anySelectionActive
-          ? ((hasActiveFilter && matchesFilter) || isIndividuallySelected ? 1.0 : 0.15)
-          : cellOpacity * distanceFade;
+        // One selection model for clicks, axis filters and dataset highlights:
+        // selected cells are in focus, everything else is dimmed.
+        const anySelectionActive = hasSelection || hasActiveFilter || hasIndividualSelection;
+        const inFocus = isSelected || (hasActiveFilter && matchesFilter);
+        const emphasis = !anySelectionActive ? "normal" : inFocus ? "focus" : "dim";
+        // Uniform opacity: value is encoded by colour only, never by transparency.
+        const baseOpacity = cellOpacity;
 
         const ghostPattern = config?.ghost_datasets;
         const isGhost = ghostPattern
@@ -227,10 +210,10 @@ export function CubeMap({
             position={[xFor(xi), yFor(yi), zFor(zi)]}
             dimensions={[cellSize, cellSize, cellSize]}
             color={color}
-            opacity={filterOpacity}
+            opacity={baseOpacity}
+            emphasis={emphasis}
             isHovered={isHovered}
             isSelected={isSelected}
-            isDimmed={isDimmed && !hasActiveFilter}
             isGhost={isGhost}
             isGhostHighlighted={isGhostHighlighted}
             isAccent={isAccent}

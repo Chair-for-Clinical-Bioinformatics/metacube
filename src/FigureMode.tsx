@@ -16,12 +16,16 @@ import type { CubeData, CubeCell, TreemapEntry, InnerCubeData } from "./data/dat
 import { Scene } from "./components/Scene";
 import { TreemapOverlay } from "./components/TreemapOverlay";
 import { InnerCubeZoom } from "./components/InnerCubeZoom";
+import type { ViewParams } from "./viewParams";
+import { ColorLegend } from "./components/ColorLegend";
 
 const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 const EMPTY_SET = new Set<string>();
 
-function OMetricOverlay({ cObs, cTotal, title, axisLabels, zIndex = 50 }: {
+function OMetricOverlay({ cObs, cTotal, title, axisLabels, zIndex = 50, children }: {
   cObs: number; cTotal: number; title: string; axisLabels: string[]; zIndex?: number;
+  /** Extra content below the O value (the colour legend in overview captures). */
+  children?: React.ReactNode;
 }) {
   const O = cObs / cTotal;
   return (
@@ -41,28 +45,24 @@ function OMetricOverlay({ cObs, cTotal, title, axisLabels, zIndex = 50 }: {
       <div style={{ fontSize: 10, color: "#9ca3af" }}>
         {cObs} / {cTotal} intersections occupied
       </div>
+      {children && <div style={{ marginTop: 10, width: 230 }}>{children}</div>}
     </div>
   );
 }
 
-// Fixed iso camera for captures — the "Iso" preset / DEFAULT_CAM that the live
-// playground uses (shows the whole cube with axis labels). ?zoom= scales the
-// distance along the iso direction: <1 moves closer (bigger cube), >1 pulls
-// back (more room for long labels).
-const ISO_CAM: [number, number, number] = [6.0, 4.5, 6.0];
-const DEFAULT_CAM_SCALE = 1.0;
+// Fixed camera for captures — the "Default" preset the live playground starts
+// from (shows the whole cube with axis labels). URL params (see viewParams.ts):
+// ?camera=default|front|top|side picks the direction, ?zoom= scales the
+// distance (<1 closer, >1 farther).
+const DEFAULT_CAM: [number, number, number] = [6.0, 4.5, 6.0];
 
-export default function FigureMode({ figureId, data }: { figureId: string; data: CubeData }) {
+export default function FigureMode({ figureId, data, view = {} }: { figureId: string; data: CubeData; view?: ViewParams }) {
   const params = new URLSearchParams(window.location.search);
   const targetX = params.get("x");
   const targetY = params.get("y");
   const targetZ = params.get("z");
 
-  const zoomParam = parseFloat(params.get("zoom") ?? "");
-  const camScale = Number.isFinite(zoomParam) && zoomParam > 0 ? zoomParam : DEFAULT_CAM_SCALE;
-  const cameraPosition: [number, number, number] = [
-    ISO_CAM[0] * camScale, ISO_CAM[1] * camScale, ISO_CAM[2] * camScale,
-  ];
+  const cameraPosition = view.cameraPosition ?? DEFAULT_CAM;
 
   const { config, records, xs, ys, zs, drilldown, treemap: cubeTreemap, info, infoBox } = data;
   const drilldownType = config.drilldown?.type;
@@ -82,7 +82,7 @@ export default function FigureMode({ figureId, data }: { figureId: string; data:
       return;
     }
     // inner needs extra time for the inner cube WebGL to initialise
-    const delay = figureId === "inner" ? 1200 : 500;
+    const delay = figureId.startsWith("inner") ? 1200 : 500;
     setTimeout(() => { setActiveCell(cell); setShowOverlay(true); }, delay);
   }, []);
 
@@ -128,6 +128,11 @@ export default function FigureMode({ figureId, data }: { figureId: string; data:
   }, [innerData, activeCell]);
 
   const axisLabels = [config.axes.x.label, config.axes.y.label, config.axes.z.label];
+  // Colour range of the outer cube, for the overview legend.
+  const colorCells = useMemo(() => buildCubeCells(records, config.colorAggregation), []);
+  const maxColor = Math.max(...colorCells.map(c => c.color ?? 0), 1);
+  const minColor = Math.min(...colorCells.map(c => c.color ?? 0), 0);
+  const showLegend = !!config.hasColorValues && !config.uniformCellColor;
   const totalSize = useMemo(() => records.reduce((s, r) => s + r.size, 0), []);
 
   return (
@@ -144,6 +149,7 @@ export default function FigureMode({ figureId, data }: { figureId: string; data:
         cellOpacity={1}
         background={config.background}
         cameraPosition={cameraPosition}
+        dpr={window.devicePixelRatio}
         xFilter={EMPTY_SET}
         yFilter={EMPTY_SET}
         zFilter={EMPTY_SET}
@@ -165,7 +171,9 @@ export default function FigureMode({ figureId, data }: { figureId: string; data:
           cTotal={cTotal}
           title={config.title}
           axisLabels={axisLabels}
-        />
+        >
+          {showLegend && <ColorLegend config={config} minValue={minColor} maxValue={maxColor} />}
+        </OMetricOverlay>
       )}
 
       {/* Inner-cube O-metric badge — same look as the overview, sits above the
@@ -200,10 +208,13 @@ export default function FigureMode({ figureId, data }: { figureId: string; data:
           info={info}
           infoBox={infoBox}
           cameraPosition={cameraPosition}
-          autoExpandSlice={figureId === "slice" || figureId === "B"}
+            autoExpandSlice={figureId === "slice" || figureId === "B"}
           figureCapture={figureId === "slice" ? "slice" : figureId === "infobox" ? "infobox" : undefined}
           onClose={() => {}}
           hideSidePanels={figureId === "inner"}
+          figurePanels={figureId === "inner_panels" ? { treemap: !!view.treemapSize } : undefined}
+          treemapSize={view.treemapSize}
+          dpr={window.devicePixelRatio}
         />
       )}
     </div>

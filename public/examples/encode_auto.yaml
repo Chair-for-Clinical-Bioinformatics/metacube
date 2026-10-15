@@ -6,6 +6,8 @@ axes:
 
 size_colour: "count"
 count_label: "experiments" 
+count_label_legend: "Number of experiments"   # colour-legend title
+color_scale: "sqrt"   # counts span orders of magnitude; sqrt spreads them over the ramp
 axis_order: "cluster"
 
 drilldown:

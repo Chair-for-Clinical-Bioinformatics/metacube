@@ -8,14 +8,15 @@ interface TooltipProps {
   cell: CubeCell | null;
   config: CubeConfig;
   cellBreakdown?: Record<string, Record<string, number>>;
-  outerCellKey?: string;
+  /** Zoom mode: outer-key prefix for an inner cell (breakdowns are keyed outer|inner). */
+  outerKeyFor?: (cell: CubeCell) => string;
   /** Map of dataset key → human-readable title. When a key is present, its title is shown instead of the key. */
   datasetTitles?: Record<string, string>;
   /** Source-concentration measure for the hovered cell (treemap/zoom modes). Null hides the row. */
   dominance?: Dominance | null;
 }
 
-export function Tooltip({ cell, config, cellBreakdown, outerCellKey, datasetTitles, dominance }: TooltipProps) {
+export function Tooltip({ cell, config, cellBreakdown, outerKeyFor, datasetTitles, dominance }: TooltipProps) {
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -112,7 +113,7 @@ export function Tooltip({ cell, config, cellBreakdown, outerCellKey, datasetTitl
       )}
       {(() => {
         const innerKey = `${cell.x}|${cell.y}|${cell.z}`;
-        const key = outerCellKey ? `${outerCellKey}|${innerKey}` : innerKey;
+        const key = outerKeyFor ? `${outerKeyFor(cell)}|${innerKey}` : innerKey;
         const breakdown = cellBreakdown?.[key];
         if (!breakdown) return null;
         const entries = Object.entries(breakdown).sort((a, b) => b[1] - a[1]);

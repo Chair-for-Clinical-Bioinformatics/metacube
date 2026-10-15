@@ -37,6 +37,11 @@ light:
   edge:                "#c9bcd6"
   edge_hover:          "#2a1a32"
   edge_selected:       "#8c4e9f"
+  # Selection contrast: unselected cells lose their fill and keep only a
+  # grey (light) / white (dark) outline; selected cells keep colour + strong outline.
+  cell_dim:            "#efeaf3"
+  edge_dim:            "#6b7280"
+  edge_focus:          "#2a1a32"
   wire:                "#1B75BC"
   grid:                "#cfe3ef"
 
@@ -84,9 +89,14 @@ dark:
 
   cell_default:        "#2bc88c"
   cell_accent:         "#a25fb8"
-  edge:                "#cdeee1"
+  edge:                "#4f7f78"
   edge_hover:          "#ffffff"
   edge_selected:       "#c79bd6"
+  # Selection contrast: unselected cells lose their fill and keep only a
+  # grey (light) / white (dark) outline; selected cells keep colour + strong outline.
+  cell_dim:            "#1c3a3f"
+  edge_dim:            "#ffffff"
+  edge_focus:          "#ffffff"
   wire:                "#3fb6d9"
   grid:                "#7fdcff"
 

@@ -1,0 +1,39 @@
+title: "CellxGene — fine tissue treemap"
+
+# Capture-only config (hidden from the playground dropdown). Puts the FINE
+# tissue column on the z axis so individual regions such as prefrontal cortex
+# are directly addressable as outer cells and their treemaps can be deep-link
+# captured for Figure 1D. max_labels is high so low-ranked regions stay present.
+axes:
+  x:
+    label: "Organism"
+    column: "organism"
+  y:
+    label: "Assay"
+    column: "assay"
+    max_labels: 20
+  z:
+    label: "Tissue"
+    column: "tissue"
+    max_labels: 100
+
+size_colour: "count"
+count_label: "cells"
+count_label_legend: "Number of cells"   # colour-legend title
+color_scale: "sqrt"   # counts span orders of magnitude; sqrt spreads them over the ramp
+
+# Publication titles/citations per collection (scripts/build_census_collections.py).
+metadata_csv: "census_collections.csv"
+metadata_join_key: "collection_id"
+
+drilldown:
+  type: "treemap"
+  # Source unit for concentration (N_eff / D) and the treemap tiles: the
+  # publication (Census collection). Datasets split from one study are not
+  # independent, so they count as one source; they are listed per publication
+  # in the info box. Tiles are labelled by citation (via metadata_csv).
+  category_column: "collection_id"
+  category_label_column: "citation"
+  category_noun: "publications"
+  subcategory_column: "cell_type"
+  count_column: "count"

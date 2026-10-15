@@ -5,15 +5,21 @@ import { Edges } from "@react-three/drei";
 import type { CubeCell } from "../data/dataModel";
 import { useTheme } from "../data/themeContext";
 
+/** How a cell relates to the current selection (clicked cell, axis filter, or
+ *  dataset highlight). With no selection every cell is "normal". */
+export type CellEmphasis = "normal" | "focus" | "dim";
+
 interface CubeCellMeshProps {
   cell: CubeCell;
   position: [number, number, number];
   dimensions: [number, number, number];
   color: string;
+  /** Base opacity used when nothing is selected (opacity slider × depth fade). */
   opacity: number;
+  emphasis: CellEmphasis;
+  /** The clicked cell itself — gets the thickest outline. */
   isSelected: boolean;
   isHovered: boolean;
-  isDimmed: boolean;
   isGhost: boolean;
   isGhostHighlighted?: boolean;
   isAccent?: boolean;
@@ -25,9 +31,19 @@ interface CubeCellMeshProps {
   onClick: (cell: CubeCell) => void;
 }
 
+// threshold 1° draws only the 12 box edges; 0 would also draw each face's
+// triangle diagonal, which reads as a busy wireframe.
+const EDGE_THRESHOLD = 1;
+
+// Unselected cells: no fill at all, only a clearly visible outline (theme
+// edge_dim: grey in light mode, white in dark), and no depth writes so they
+// never occlude the selection behind them.
+const DIM_OPACITY = 0;
+const DIM_EDGE_OPACITY = 0.6;
+
 export function CubeCellMesh({
-  cell, position, dimensions, color, opacity,
-  isSelected, isHovered, isDimmed, isGhost, isGhostHighlighted = false,
+  cell, position, dimensions, color, opacity, emphasis,
+  isSelected, isHovered, isGhost, isGhostHighlighted = false,
   isAccent = false, accentColor, unlit = false,
   onHover, onClick,
 }: CubeCellMeshProps) {
@@ -39,33 +55,63 @@ export function CubeCellMesh({
   const handlePointerOut  = (e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); setLocalHover(false); onHover(null); };
   const handleClick       = (e: ThreeEvent<MouseEvent>)   => { e.stopPropagation(); onClick(cell); };
 
-  const finalOpacity = isGhost
-    ? (isHovered || localHover ? 0.15 : isGhostHighlighted ? 0.18 : 0.0)
-    : isSelected ? 1.0 : isDimmed ? Math.min(opacity, 0.12) : opacity;
-  const finalColor = isGhost ? "#d1d5db" : isAccent ? (accentColor ?? theme.cell_accent) : color;
+  const hovered = isHovered || localHover;
+  const dim = emphasis === "dim" && !hovered;
+  const focus = emphasis === "focus";
+
+  if (isGhost) {
+    const ghostOpacity = hovered ? 0.15 : isGhostHighlighted ? 0.18 : 0.0;
+    const ghostEdge = hovered || isGhostHighlighted ? "#9fb4af" : "#6f8580";
+    const ghostWidth = hovered ? 2.5 : isGhostHighlighted ? 2.0 : 1.5;
+    return (
+      <mesh ref={ref} position={position} onPointerOver={handlePointerOver} onPointerOut={handlePointerOut} onClick={handleClick}>
+        <boxGeometry args={dimensions} />
+        <meshStandardMaterial color="#d1d5db" transparent opacity={ghostOpacity} />
+        <Edges threshold={EDGE_THRESHOLD} color={ghostEdge} lineWidth={ghostWidth} />
+      </mesh>
+    );
+  }
+
+  const baseColor = isAccent ? (accentColor ?? theme.cell_accent) : color;
+  const finalColor = dim ? theme.cell_dim : baseColor;
+  const finalOpacity = dim ? DIM_OPACITY : focus ? 1.0 : opacity;
   // Base glow so cells self-illuminate against the dark gradient stage.
-  const emissiveIntensity = isHovered || localHover ? 0.55 : isSelected ? 0.4 : 0.22;
-  const edgeColor = isGhost
-    ? (isHovered || localHover ? "#9fb4af" : isGhostHighlighted ? "#9fb4af" : "#6f8580")
-    : isAccent
-      ? (isHovered || localHover ? "#ecd6f5" : isSelected ? "#ecd6f5" : theme.edge_selected)
-      : (isHovered || localHover ? theme.edge_hover : isSelected ? theme.edge_selected : theme.edge);
-  const edgeWidth = isGhost
-    ? (isHovered || localHover ? 2.5 : isGhostHighlighted ? 2.0 : 1.5)
-    : (isHovered || localHover ? 2 : 1);
+  const emissiveIntensity = hovered ? 0.55 : focus ? 0.4 : dim ? 0 : 0.22;
+
+  const edgeColor = hovered ? theme.edge_hover
+    : focus ? theme.edge_focus
+    : dim ? theme.edge_dim
+    : theme.edge;
+  const edgeWidth = isSelected ? 3 : focus ? 2 : hovered ? 2 : 1;
 
   return (
-    <mesh ref={ref} position={position} onPointerOver={handlePointerOver} onPointerOut={handlePointerOut} onClick={handleClick}>
+    <mesh
+      ref={ref}
+      position={position}
+      // Draw the selection after the dimmed context so it is never washed out.
+      renderOrder={focus ? 2 : dim ? 0 : 1}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+      onClick={handleClick}
+    >
       <boxGeometry args={dimensions} />
-      {unlit && !isGhost && !isAccent ? (
+      {unlit && !isAccent ? (
         // Unlit: displayed colour == finalColor exactly, independent of lighting/normals,
         // so the value-encoding gradient reads faithfully. Hover/selection emphasis is
         // carried by the Edges below.
-        <meshBasicMaterial color={finalColor} transparent opacity={finalOpacity} />
+        <meshBasicMaterial color={finalColor} transparent opacity={finalOpacity} depthWrite={!dim} />
       ) : (
-        <meshStandardMaterial color={finalColor} transparent opacity={finalOpacity} emissive={finalColor} emissiveIntensity={isGhost ? 0 : emissiveIntensity} />
+        <meshStandardMaterial color={finalColor} transparent opacity={finalOpacity} depthWrite={!dim} emissive={finalColor} emissiveIntensity={emissiveIntensity} />
       )}
-      <Edges threshold={0} color={edgeColor} lineWidth={edgeWidth} />
+      <Edges
+        threshold={EDGE_THRESHOLD}
+        color={edgeColor}
+        lineWidth={edgeWidth}
+        transparent={dim}
+        opacity={dim ? DIM_EDGE_OPACITY : 1}
+        depthWrite={!dim}
+        renderOrder={focus ? 3 : dim ? 0 : 1}
+      />
     </mesh>
   );
 }

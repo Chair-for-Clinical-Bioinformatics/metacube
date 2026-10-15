@@ -1,5 +1,5 @@
-import { useRef, useMemo, useCallback, useState } from "react";
-import { buildCubeCells, cellKey, computeDominance } from "./data/dataModel";
+import { useRef, useMemo, useCallback, useState, useEffect } from "react";
+import { buildCubeCells, cellKey, computeDominance, availableAxisValues } from "./data/dataModel";
 import type { CubeData, CubeCell, TreemapEntry, InnerCubeData, InfoEntry } from "./data/dataModel";
 import type { AxisGroup } from "./data/config";
 import { useStore } from "./hooks/useStore";
@@ -13,6 +13,9 @@ import { InnerCubeZoom } from "./components/InnerCubeZoom";
 import { TrivialZoomPanel } from "./components/TrivialZoomPanel";
 import { InfoPanel } from "./components/InfoPanel";
 import { useTheme } from "./data/themeContext";
+import type { ViewParams } from "./viewParams";
+import type { ColorScaleType } from "./data/colors";
+import { toggleSources, cellsWithSources, sourceTotals } from "./components/SourceCards";
 
 const CUBE_SIZE = 3.8;
 const GAP = 0.025;
@@ -37,8 +40,12 @@ function cellWorldPosition(
   ];
 }
 
-export default function App({ data }: { data: CubeData }) {
-  const { config, records, xs, ys, zs, drilldown, treemap: cubeTreemap, info, infoBox, charts, cellBreakdown } = data;
+export default function App({ data, view = {} }: { data: CubeData; view?: ViewParams }) {
+  const { config: baseConfig, records, xs, ys, zs, drilldown, treemap: cubeTreemap, info, infoBox, charts, cellBreakdown } = data;
+  // Colour transform chosen in the legend (linear / √ / log); starts from the YAML's
+  // color_scale and flows to every view through the effective config.
+  const [colorScale, setColorScale] = useState<ColorScaleType>(baseConfig.colorScale ?? "linear");
+  const config = useMemo(() => ({ ...baseConfig, colorScale }), [baseConfig, colorScale]);
   const { theme } = useTheme();
   const store = useStore();
   const sceneRef = useRef<SceneHandle>(null);
@@ -48,6 +55,8 @@ export default function App({ data }: { data: CubeData }) {
   const [hoveredStudy, setHoveredStudy] = useState<string | null>(null);
   const [zoomTarget, setZoomTarget] = useState<[number, number, number] | null>(null);
   const [zoomingBack, setZoomingBack] = useState(false);
+  // Sources picked in the info box / treemap; their cube cells are highlighted.
+  const [selectedSources, setSelectedSources] = useState<Set<string>>(() => new Set());
 
   const drilldownType = config.drilldown?.type;
 
@@ -75,6 +84,12 @@ export default function App({ data }: { data: CubeData }) {
     const Ctotal = xs.length * ys.length * zs.length;
     return Ctotal > 0 ? Cobs / Ctotal : 0;
   }, [records, xs, ys, zs]);
+
+  const cubeCells = useMemo(() => buildCubeCells(records, config.colorAggregation), [records, config.colorAggregation]);
+  const availableValues = useMemo(
+    () => availableAxisValues(cubeCells, store.xFilter, store.yFilter, store.zFilter),
+    [cubeCells, store.xFilter, store.yFilter, store.zFilter],
+  );
 
   const hasActiveFilter = store.xFilter.size > 0 || store.yFilter.size > 0 || store.zFilter.size > 0;
   const filterTotal = useMemo(() => {
@@ -142,6 +157,23 @@ export default function App({ data }: { data: CubeData }) {
     return computeDominance(entries, config.concentrationThresholds);
   }, [store.hoveredCell, drilldownType, drilldown, cubeTreemap, config.concentrationThresholds]);
 
+  // Per-cell source lists: the treemap drilldown (treemap mode) or the treemap
+  // panel data (zoom mode). Used to find the cells containing selected sources.
+  const cellSources = useMemo((): Record<string, TreemapEntry[]> | undefined => {
+    if (drilldownType === "treemap" && drilldown) {
+      const out: Record<string, TreemapEntry[]> = {};
+      for (const [k, v] of Object.entries(drilldown)) if (Array.isArray(v)) out[k] = v as TreemapEntry[];
+      return out;
+    }
+    return cubeTreemap ?? undefined;
+  }, [drilldownType, drilldown, cubeTreemap]);
+  const sourceHighlightCells = useMemo(() => cellsWithSources(cellSources, selectedSources), [cellSources, selectedSources]);
+  const handleSourcesToggle = useCallback((ids: string[]) => setSelectedSources(prev => toggleSources(prev, ids)), []);
+  const selectedCellSourceSizes = useMemo(
+    () => (store.selectedCell ? sourceTotals(cellSources?.[cellKey(store.selectedCell)]) : undefined),
+    [store.selectedCell, cellSources],
+  );
+
   const infoEntries = useMemo(() => {
     if (!activeCell || !info) return null;
     return info[cellKey(activeCell)] ?? null;
@@ -198,6 +230,7 @@ export default function App({ data }: { data: CubeData }) {
     setActiveCell(null);
     setZoomTarget(null);
     setZoomingBack(true);
+    setSelectedSources(new Set());
     store.setSelectedCell(null);
   }, [store.setSelectedCell]);
 
@@ -209,6 +242,7 @@ export default function App({ data }: { data: CubeData }) {
   }, []);
 
   const handleClearSelection = useCallback(() => {
+    setSelectedSources(new Set());
     setShowOverlay(false);
     setActiveCell(null);
     setZoomTarget(null);
@@ -232,6 +266,17 @@ export default function App({ data }: { data: CubeData }) {
       setActiveCell(null);
     }
   }, [store.setSelectedCell, zoomingBack]);
+
+  // Deep link (?x=&y=&z=): select that cell once on mount, as if clicked.
+  const didPreselect = useRef(false);
+  useEffect(() => {
+    if (didPreselect.current || !view.cell) return;
+    didPreselect.current = true;
+    const { x, y, z } = view.cell;
+    const cell = buildCubeCells(records, config.colorAggregation).find(c => c.x === x && c.y === y && c.z === z);
+    if (cell) handleSelect(cell);
+    else console.warn(`No cube cell for x="${x}" y="${y}" z="${z}"`);
+  }, [view.cell, records, config.colorAggregation, handleSelect]);
 
   const handleZoomComplete = useCallback(() => setShowOverlay(true), []);
 
@@ -261,6 +306,7 @@ export default function App({ data }: { data: CubeData }) {
         zFilter={store.zFilter}
         hoveredCell={store.hoveredCell}
         selectedCell={store.selectedCell}
+        selectedCells={sourceHighlightCells}
         onHover={store.setHoveredCell}
         onSelect={handleSelect}
         zoomTarget={zoomTarget}
@@ -276,6 +322,7 @@ export default function App({ data }: { data: CubeData }) {
         onToggleX={store.toggleX}
         onToggleY={store.toggleY}
         onToggleZ={store.toggleZ}
+        cameraPosition={view.cameraPosition}
       />
 
       <Tooltip cell={store.hoveredCell} config={config} cellBreakdown={cellBreakdown} datasetTitles={datasetTitles} dominance={hoveredDominance} />
@@ -316,6 +363,8 @@ export default function App({ data }: { data: CubeData }) {
           minColorValue={config.uniformCellColor ? 0 : minColorValue}
           onResetView={handleResetView}
           onClearSelection={handleClearSelection}
+          available={availableValues}
+          onColorScaleChange={setColorScale}
         />
       )}
 
@@ -329,6 +378,13 @@ export default function App({ data }: { data: CubeData }) {
           infoEntries={infoBoxEntries}
           charts={charts}
           treemapEntries={store.selectedCell ? (cubeTreemap?.[cellKey(store.selectedCell)] ?? null) : null}
+          initialShowMatrix={view.slice}
+          sourceNoun={config.drilldown?.categoryNoun}
+          onSourcesToggle={cellSources ? handleSourcesToggle : undefined}
+          selectedSources={selectedSources}
+          sourceSizes={selectedCellSourceSizes}
+          hoveredSource={hoveredStudy}
+          onSourceHover={setHoveredStudy}
         />
       )}
 
@@ -353,6 +409,8 @@ export default function App({ data }: { data: CubeData }) {
           onClose={handleCloseOverlay}
           hoveredStudy={hoveredStudy}
           onStudyHover={setHoveredStudy}
+          selectedSources={selectedSources}
+          onSourcesToggle={handleSourcesToggle}
         />
       )}
 
@@ -396,6 +454,10 @@ export default function App({ data }: { data: CubeData }) {
           cellBreakdown={cellBreakdown}
           datasetTitles={datasetTitles}
           onClose={handleCloseOverlay}
+          cameraPosition={view.cameraPosition}
+          autoExpandSlice={view.slice}
+          treemapSize={view.treemapSize}
+          onColorScaleChange={setColorScale}
         />
       )}
     </>

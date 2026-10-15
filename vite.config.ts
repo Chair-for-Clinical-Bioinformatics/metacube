@@ -34,16 +34,57 @@ function matomo(): Plugin {
   };
 }
 
+// The root index.html is the local dev page (with injected example data) and the
+// source of the single-file package template; it is not deployed. The deployed site is the
+// playground, and the site root only redirects there.
+function rootRedirect(): Plugin {
+  return {
+    name: "root-redirect",
+    apply: "build",
+    generateBundle() {
+      this.emitFile({
+        type: "asset",
+        fileName: "index.html",
+        source: `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MetaCube</title>
+    <meta http-equiv="refresh" content="0; url=playground/" />
+    <link rel="canonical" href="playground/" />
+  </head>
+  <body>
+    <a href="playground/">MetaCube playground</a>
+  </body>
+</html>
+`,
+      });
+    },
+  };
+}
+
+// The single-file package template must ship without data: the packages and the playground
+// download inject the user's data before <div id="root">. Strip the dev data that sits in
+// the root index.html so it is not carried along in every exported file.
+function stripDevData(): Plugin {
+  return {
+    name: "strip-dev-data",
+    apply: "build",
+    transformIndexHtml(html) {
+      return html.replace(/<script>\s*window\.__CUBE_DATA__ = [\s\S]*?<\/script>\s*/, "");
+    },
+  };
+}
+
 export default defineConfig({
   base: singleFile ? "./" : "/metacube/",
-  plugins: singleFile ? [react(), viteSingleFile()] : [react(), matomo()],
+  plugins: singleFile ? [react(), stripDevData(), viteSingleFile()] : [react(), matomo(), rootRedirect()],
   publicDir: singleFile ? false : "public",
   build: singleFile
     ? { emptyOutDir: false }
     : {
         rollupOptions: {
           input: {
-            main:       resolve(__dirname, "index.html"),
             playground: resolve(__dirname, "playground/index.html"),
           },
         },

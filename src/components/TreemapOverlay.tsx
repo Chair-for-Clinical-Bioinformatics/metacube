@@ -19,6 +19,8 @@ import { useTheme } from "../data/themeContext";
 
 const PANEL_INIT_W = 520;
 const PANEL_INIT_H = 340;
+/** Default panel height, exported so neighbouring panels can stay clear of it. */
+export const TREEMAP_PANEL_H = PANEL_INIT_H;
 const PANEL_PAD_H = 132; // header + legend + padding
 const PANEL_PAD_W = 44;
 
@@ -33,6 +35,11 @@ interface TreemapOverlayProps {
   /** Override for the category noun (e.g. "labs"). Needed in zoom mode where the
    * inner config drops `drilldown`; falls back to config.drilldown.categoryNoun. */
   categoryNoun?: string;
+  /** Initial panel size (panel mode only). */
+  initialSize?: { w: number; h: number };
+  /** Highlighted source ids; clicking a tile group toggles its source. */
+  selectedSources?: Set<string>;
+  onSourcesToggle?: (ids: string[]) => void;
 }
 
 function fmt(n: number): string {
@@ -43,18 +50,20 @@ function fmt(n: number): string {
 
 type TreeNode = { name: string; children?: TreeNode[]; value?: number };
 
-export function TreemapOverlay({ cell, entries, config, onClose, panel = false, hoveredStudy, onStudyHover, categoryNoun }: TreemapOverlayProps) {
+export function TreemapOverlay({ cell, entries, config, onClose, panel = false, hoveredStudy, onStudyHover, categoryNoun, initialSize, selectedSources, onSourcesToggle }: TreemapOverlayProps) {
   const { theme } = useTheme();
   const CT_PALETTE = theme.categorical;
   const [hoveredCT, setHoveredCT] = useState<string | null>(null);
 
   // Panel-mode position and size (ignored in overlay mode)
   // Spawn bottom-right, right edge aligned with DetailsPanel (right: 12)
+  const initW = initialSize?.w ?? PANEL_INIT_W;
+  const initH = initialSize?.h ?? PANEL_INIT_H;
   const [panelPos, setPanelPos] = useState(() => ({
-    x: Math.max(10, window.innerWidth - 12 - PANEL_INIT_W),
-    y: Math.max(10, window.innerHeight - PANEL_INIT_H - 12),
+    x: Math.max(10, window.innerWidth - 12 - initW),
+    y: Math.max(10, window.innerHeight - initH - 12),
   }));
-  const [panelSize, setPanelSize] = useState({ w: PANEL_INIT_W, h: PANEL_INIT_H });
+  const [panelSize, setPanelSize] = useState({ w: initW, h: initH });
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
   const resizeRef = useRef<{
     startX: number; startY: number;
@@ -210,7 +219,7 @@ export function TreemapOverlay({ cell, entries, config, onClose, panel = false, 
               {cell.x} · {cell.y} · {zDisplay}
             </div>
             <div style={{ fontSize: 17, fontWeight: 700, color: TEXT, display: "flex", alignItems: "center", gap: 10 }}>
-              <span>{studyMap.size} {catNoun}{studyGroups.length < studyMap.size ? ` (top ${studyGroups.length} shown)` : ""} · {fmt(cell.size)}{countLabel}</span>
+              <span>{studyMap.size} {studyMap.size === 1 ? catNoun.replace(/s$/, "") : catNoun}{studyGroups.length < studyMap.size ? ` (top ${studyGroups.length} shown)` : ""} · {fmt(cell.size)}{countLabel}</span>
               {studyMap.size > 0 && (() => {
                 const dom = computeDominance(entries, config.concentrationThresholds);
                 if (!dom) return null;
@@ -245,19 +254,22 @@ export function TreemapOverlay({ cell, entries, config, onClose, panel = false, 
               const maxTitleChars = Math.max(0, Math.floor((gw - 50) / 6.5));
               const displayTitle = fullName.length > maxTitleChars && maxTitleChars > 3
                 ? fullName.slice(0, maxTitleChars - 1) + "…" : fullName;
-              const isStudyHighlighted = hoveredStudy === s.name;
+              const isSelected = !!selectedSources?.has(s.name);
+              const isStudyHighlighted = hoveredStudy === s.name || isSelected;
               return (
                 <g key={`sg-${i}`}
                   onMouseEnter={() => onStudyHover?.(s.name)}
                   onMouseLeave={() => onStudyHover?.(null)}
+                  onClick={onSourcesToggle ? () => onSourcesToggle([s.name]) : undefined}
                   style={{ cursor: "pointer" }}
                 >
+                  <title>{fullName}{onSourcesToggle ? " — click to highlight its cube cells" : ""}</title>
                   <defs><clipPath id={clipId}><rect x={s.x0} y={s.y0 - 20} width={gw} height={20} /></clipPath></defs>
                   <rect x={s.x0} y={s.y0} width={gw} height={s.y1 - s.y0}
                     fill={isStudyHighlighted ? CARD_BG_ACTIVE : "none"}
                     rx={4}
                     stroke={isStudyHighlighted ? ACCENT : PANEL_BORDER}
-                    strokeWidth={isStudyHighlighted ? 2 : 1} />
+                    strokeWidth={isSelected ? 3 : isStudyHighlighted ? 2 : 1} />
                   {gw > 40 && (
                     <text x={s.x0 + 4} y={s.y0 - 5} fontSize={11} fontWeight={700}
                       fill={isStudyHighlighted ? ACCENT : TEXT}
@@ -274,7 +286,9 @@ export function TreemapOverlay({ cell, entries, config, onClose, panel = false, 
               const w = lf.x1 - lf.x0, h = lf.y1 - lf.y0;
               const hl = hoveredCT === lf.cellType;
               return (
-                <g key={`sl-${i}`} onMouseEnter={() => setHoveredCT(lf.cellType)} onMouseLeave={() => setHoveredCT(null)} style={{ cursor: "pointer" }}>
+                <g key={`sl-${i}`} onMouseEnter={() => setHoveredCT(lf.cellType)} onMouseLeave={() => setHoveredCT(null)}
+                  onClick={onSourcesToggle ? () => onSourcesToggle([lf.study]) : undefined}
+                  style={{ cursor: "pointer" }}>
                   <rect x={lf.x0} y={lf.y0} width={w} height={h} fill={lf.color}
                     opacity={hl ? 1 : hoveredCT ? 0.4 : 0.82}
                     stroke={hl ? TEXT : "rgba(255,255,255,0.6)"} strokeWidth={hl ? 2 : 0.5} rx={2} />

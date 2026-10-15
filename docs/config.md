@@ -267,6 +267,8 @@ colour: "score"               # numeric — drives colour only; block size = row
 color_aggregation: "mean"     # "sum" (default) or "mean" — how to aggregate colour values per cell
 color_label: "Avg score"      # label shown next to the colour value in hover tooltip
 count_label: "cells"          # noun for one unit of the magnitude (size), e.g. "cells" / "experiments"
+count_label_legend: "Number of cells"  # title of the colour legend (default: "Number of <count_label>")
+color_scale: "sqrt"           # "linear" (default) | "sqrt" | "log" — compression before the colour ramp
 datasets_column: "dataset_id" # string — shown in hover tooltip as a list
 colors:                       # global value→hex map (applies to all axes)
   "Human": "#3b82f6"
@@ -298,13 +300,34 @@ to counts throughout the UI — the hover tooltip, the cell details panel, and t
 treemap header. It makes the bare number unambiguous in the dataset's own units:
 
 ```yaml
-count_label: "cells"        # CZ CELLxGENE → "36.9M cells"
+count_label: "cells"        # CZ CELLxGENE → "21.2M cells"
 count_label: "experiments"  # ENCODE       → "1.2k experiments"
 ```
 
 If omitted, the magnitude is shown without a unit (the tooltip falls back to
 `"Size:"` / `"Count:"`, the details panel to `"entries"`). Distinct from
 `color_label`, which labels the *colour* value; `count_label` labels the *size*.
+
+### `count_label_legend`
+
+Title of the colour legend in the control panel (and the inner zoom panel), i.e.
+what the colour encodes, e.g. `"Number of cells"`. Defaults to
+`"Number of <count_label>"`; without `count_label` it falls back to `color_label`.
+Under the title the legend states the aggregation and transform
+(e.g. *"total per cube cell · √ scale"*; inner cubes add *"within <outer cell>"*),
+and the ticks show the minimum, the midpoint of the bar and the maximum with units.
+
+### `color_scale`
+
+Compression applied to the magnitude before it is mapped onto a sequential colour
+ramp: `"linear"` (default), `"sqrt"` or `"log"` (log1p). Counts usually span
+orders of magnitude (a few huge datasets, many small ones), so a linear ramp
+leaves almost every cell at the low end; `sqrt` or `log` spread the range across
+the palette. Legend ticks are spaced in the same transformed space, so the middle
+tick shows the value that actually sits there. Diverging palettes are never
+transformed. The bundled Census and ENCODE examples use `"sqrt"`. The value only sets the
+starting scale: viewers can switch between linear, √ and log with the buttons under
+the legend (outer and inner cube share the choice).
 
 ---
 
@@ -427,6 +450,7 @@ axis_colors:                   # per-axis colour for outer titles + label highli
 background: "#ffffff"          # scene background — any CSS background value
 uniform_cell_color: "#60a5fa"  # flat cell colour when no size_colour/colour gradient
 tilt_group_labels: true        # rotate grouped-axis headers parallel to their axis
+label_rotation: "auto"         # "auto" (default) | "horizontal" — 3D axis value labels
 ```
 
 ### `colour_scheme`
@@ -468,6 +492,15 @@ the active theme's default cell colour is used (so it stays reactive to light/da
 ### `tilt_group_labels`
 When `true`, grouped-axis headers (see §8, `group_separator`) are rotated to run
 parallel to their axis — e.g. vertical Y-group headers. Default `false`.
+
+### `label_rotation`
+How the 3D axis value labels follow the camera. With `"auto"` (default) each
+axis's labels move to the cube edge facing the viewer, are rotated perpendicular
+to the axis as it appears on screen (so neighbours stack by text height, not
+width), and fade — never below ~20% opacity — where the on-screen spacing is too
+tight to read, e.g. at the far end of an axis that points towards the viewer.
+Group headers and the axis title are pushed out past the longest label.
+`"horizontal"` keeps the edge switching and fading but leaves the text level.
 
 ---
 
@@ -558,10 +591,12 @@ drilldown:
 
 You can replace 1, 2, or all 3 axes. Axes not listed inherit from the outer cube.
 
-**Dataset click highlighting:** when `info_box` is configured with a field named
-`dataset`, clicking a dataset card in the inner zoom panel highlights all inner cells
-that contain that dataset (all others dim to 15% opacity). Click the same card again
-to deselect and restore full visibility.
+**Source highlighting:** clicking an info-box card, one of the rows inside it (when
+each row is its own source), or a treemap tile highlights every cube cell that
+contains that source; all other cells are greyed out. Click again to deselect; "Clear Sel."
+resets. Cells are found through the per-cell treemaps, so this needs a source column
+(`drilldown.treemap.category_column`, or `datasets_column` as a fallback). Works in the
+inner zoom cube and, for treemap drilldowns, in the outer cube.
 
 ---
 
@@ -659,8 +694,18 @@ info_box:
 ```
 
 Entries appear directly in the details panel on the right whenever a cell is
-selected. Multiple CSV rows that produce identical entries for the same cell are
-automatically deduplicated.
+selected, under a header counting the cell's sources (e.g. *"31 publications · 183
+datasets"*). When a source column is configured — `drilldown.treemap.category_column`
+(zoom), `drilldown.category_column` (treemap) or `datasets_column` — every entry is
+tagged with its source, so the number of sources matches the treemap of the same cell.
+Rows that produce identical entries are deduplicated.
+
+A field named `title` becomes the card heading (otherwise `dataset` is used). Entries
+sharing a `title` are grouped into **one card per title** (e.g. one per publication)
+that lists the finer units behind it (the `dataset` field) with their magnitude; cards
+are sorted by magnitude. Fields identical across a card's entries (e.g. citation, doi)
+are shown once. Titles and citations that are not in the main table can be joined in
+from a lookup table via `metadata_csv` (§3b).
 
 Fields named `url` or `doi` are rendered as clickable links. A `doi` field value is
 automatically prefixed with `https://doi.org/`.
@@ -727,13 +772,21 @@ is pulled in.
 ```yaml
 slice:
   fixed_axis: "x"             # "x", "y", or "z" — axis held fixed
-  count_column: "cell_count"  # optional — column to aggregate in the heatmap
+  count_column: "count"       # optional — must be the magnitude column (size_colour / colour)
 ```
 
 **What it looks like:** a "View 2D Slice" toggle appears in the right-side panel.
 When expanded it shows a matrix heatmap of the two free axes at the fixed value of
 the selected cell. Useful for comparing counts across all (y, z) combinations for a
 given organism, for example.
+
+**What it counts:** each entry is the **sum of the magnitude** (`size_colour`, or
+`colour`) over all records in that (fixed value, row, column) combination — the same
+number the cube colours by, shown flat and exact. Without a magnitude column every
+record counts as 1 (number of table rows). It never counts sources; use the treemap
+for that. Rows and columns with no data at the fixed value are omitted. The slice
+cannot aggregate other columns: a `count_column` other than the magnitude column is
+ignored with a warning.
 
 ---
 
@@ -909,17 +962,26 @@ Fields are grouped by function and ordered the way a config is usually assembled
 
 ## 10. Worked Examples
 
-All three examples use the bundled `census_tissue_general_counts.csv` (columns:
-`organism, tissue_general, tissue, assay, dataset_id, dataset_title, cell_type, count`).
-This file ships with both packages (`metacube examples --dest .`) and is also
-available in the browser playground.
+All three examples use the bundled `census_tissue_general_counts_primary.csv` (columns:
+`organism, tissue_general, tissue, assay, dataset_id, collection_id, dataset_title,
+collection_doi, cell_type, count`). It counts primary cells only (`is_primary_data ==
+True`), so cells that Census re-releases in subset or integrated datasets are counted once.
+
+Publication titles and citations come from `census_collections.csv`, joined on
+`collection_id` via `metadata_csv`. All files ship with both packages
+(`metacube examples --dest .`) and are available in the browser playground.
+
+**Terms used for Census:** a *source* is a publication (Census *collection*) — the
+unit for the treemap tiles and N_eff / D; a *dataset* is one of Census's individual
+files within a publication, listed under its publication in the info box.
 
 ---
 
-### Example A — Flat cube with inline dataset info
+### Example A — Flat cube with inline publication info
 
-No drilldown. Clicking a cell shows the contributing dataset names directly in the
-right-side panel via `info_box`.
+No drilldown. Clicking a cell lists the contributing publications in the right-side
+panel via `info_box`: one card per publication (title, citation, DOI) with its datasets.
+Publication titles and citations are joined in from a lookup table via `metadata_csv`.
 
 ```yaml
 title: "CellxGene Census — Flat"
@@ -940,9 +1002,15 @@ axes:
 size_colour: "count"
 count_label: "cells"
 
+metadata_csv: "census_collections.csv"
+metadata_join_key: "collection_id"
+
 info_box:
   columns:
-    dataset: "dataset_title"
+    title:    "publication"
+    citation: "citation"
+    dataset:  "dataset_title"
+    doi:      "collection_doi"
 ```
 
 ---
@@ -973,9 +1041,9 @@ count_label: "cells"
 
 drilldown:
   type: "treemap"
-  category_column: "dataset_id"           # group/concentration over the source id
-  category_label_column: "dataset_title"  # but label tiles by the readable title
-  category_noun: "datasets"
+  category_column: "collection_id"        # source = publication (concentration unit)
+  category_label_column: "citation"       # tiles labelled "Siletti et al. (2023) Science"
+  category_noun: "publications"
   subcategory_column: "cell_type"
   count_column: "count"
 
@@ -984,9 +1052,11 @@ slice:
   count_column: "count"
 ```
 
-The treemap header reports `N_eff` / `D` over `dataset_id` (the source concentration,
-§4f), with tiles labelled by `dataset_title` and counts shown in `count_label` units
-("36.9M cells").
+The treemap header reports `N_eff` / `D` over publications (the source
+concentration, §4f), with tiles labelled by citation (joined from
+`census_collections.csv` via `metadata_csv: "census_collections.csv"`,
+`metadata_join_key: "collection_id"`) and counts in `count_label` units
+("21.2M cells").
 
 ---
 
@@ -1022,9 +1092,9 @@ drilldown:
       column: "tissue"
       max_labels: 30
   treemap:
-    category_column: "dataset_id"
-    category_label_column: "dataset_title"
-    category_noun: "datasets"
+    category_column: "collection_id"
+    category_label_column: "citation"
+    category_noun: "publications"
     subcategory_column: "cell_type"
     count_column: "count"
 

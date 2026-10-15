@@ -31,4 +31,14 @@ build/
 metacube_*.tar.gz
 tests/parity/fixture.csv
 tests/
-scripts/
+# scripts/: only the data builders for the bundled Census and ENCODE examples are
+# published (they produced the data used in the publication); the rest are local.
+scripts/*
+!scripts/build_census_counts.py
+!scripts/build_census_collections.py
+!scripts/build_encode_counts.py
+# regenerates the data snapshot in the root index.html (see README)
+!scripts/update_dev.py
+manuscript/
+# local Python env for scripts/update_dev.py and the editable package
+.venv/

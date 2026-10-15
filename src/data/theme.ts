@@ -59,6 +59,12 @@ export interface Theme {
   edge: string;
   edge_hover: string;
   edge_selected: string;
+  /** Fill for cells outside the current selection (colour removed). */
+  cell_dim: string;
+  /** Edge colour for cells outside the current selection. */
+  edge_dim: string;
+  /** Strong outline for selected cells (white in dark mode, near-black in light). */
+  edge_focus: string;
   wire: string;
   grid: string;
 

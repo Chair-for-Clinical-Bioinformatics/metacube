@@ -5,6 +5,7 @@ import { ThemeProvider, useTheme } from "../src/data/themeContext";
 import { DEFAULT_SCHEME } from "../src/data/theme";
 import { transformCsvYaml } from "./transform";
 import { downloadStandaloneHtml } from "./download";
+import { readViewParams } from "../src/viewParams";
 import type { CubeData, ChartSpec } from "../src/data/dataModel";
 import {
   ASAP,
@@ -23,25 +24,36 @@ const TEMPLATE_URL = `${BASE}template.html`;
 
 // `key` is a stable identifier used for deep-linking (e.g. the capture script's
 // ?dataset=<key> URL param). Keep these keys in sync with scripts/capture_config.yaml.
-interface ExampleDef { key: string; label: string; csv: string; yaml: string;}
+interface ExampleDef { key: string; label: string; csv: string; yaml: string; hidden?: boolean; }
+// Census counts: primary cells only (is_primary_data), so each cell is counted once.
+const CENSUS_PRIMARY = `${BASE}examples/census_tissue_general_counts_primary.csv`;
 const EXAMPLES: ExampleDef[] = [
   {
     key:  "census_flat",
     label: "CellxGene — flat cube",
-    csv:  `${BASE}examples/census_tissue_general_counts.csv`,
+    csv:  CENSUS_PRIMARY,
     yaml: `${BASE}examples/census_tissue_general_flat.yaml`,
   },
   {
     key:  "census_treemap",
     label: "CellxGene — treemap",
-    csv:  `${BASE}examples/census_tissue_general_counts.csv`,
+    csv:  CENSUS_PRIMARY,
     yaml: `${BASE}examples/census_tissue_general_treemap.yaml`,
   },
   {
     key:  "census_zoom",
     label: "CellxGene — zoom cube",
-    csv:  `${BASE}examples/census_tissue_general_counts.csv`,
+    csv:  CENSUS_PRIMARY,
     yaml: `${BASE}examples/census_tissue_general_zoom.yaml`,
+  },
+  {
+    // Capture-only: fine-tissue treemap source for the prefrontal-cortex panel
+    // (Fig 1D). Hidden from the playground dropdown but resolvable via ?dataset.
+    key:  "census_fine",
+    label: "CellxGene — fine tissue treemap",
+    csv:  CENSUS_PRIMARY,
+    yaml: `${BASE}examples/census_fine_treemap.yaml`,
+    hidden: true,
   },
   {
     key:  "encode",
@@ -57,6 +69,10 @@ const EXAMPLES: ExampleDef[] = [
 const _urlParams = new URLSearchParams(window.location.search);
 const DATASET_PARAM = _urlParams.get("dataset");
 const FIGURE_PARAM = _urlParams.get("figure");
+// ?ui=full renders the complete app UI without the playground's download bar
+// (used for the annotated full-interface figure).
+const UI_FULL = _urlParams.get("ui") === "full";
+const VIEW = readViewParams();
 
 const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 
@@ -170,26 +186,26 @@ export default function PlaygroundApp() {
   // render FigureMode directly (no landing UI, no download bar).
   if (FIGURE_PARAM && phase.tag === "ready") {
     return (
-      <ThemeProvider scheme={phase.data.config.colour_scheme ?? DEFAULT_SCHEME}>
-        <FigureMode figureId={FIGURE_PARAM} data={phase.data} />
+      <ThemeProvider scheme={phase.data.config.colour_scheme ?? DEFAULT_SCHEME} forcedMode={VIEW.theme}>
+        <FigureMode figureId={FIGURE_PARAM} data={phase.data} view={VIEW} />
       </ThemeProvider>
     );
   }
 
   if (phase.tag === "ready") {
-    const BAR_H = 52; // DownloadBar height: 8px padding × 2 + ~36px buttons
+    const BAR_H = UI_FULL ? 0 : 52; // DownloadBar height: 8px padding × 2 + ~36px buttons
     return (
-      <ThemeProvider scheme={phase.data.config.colour_scheme ?? DEFAULT_SCHEME}>
+      <ThemeProvider scheme={phase.data.config.colour_scheme ?? DEFAULT_SCHEME} forcedMode={VIEW.theme}>
         <div style={{ width: "100vw", height: `calc(100vh - ${BAR_H}px)`, position: "relative", overflow: "hidden" }} key={phase.key}>
-          <App data={phase.data} />
-          <DownloadBar onDownload={handleDownload} onReset={handleReset} />
+          <App data={phase.data} view={VIEW} />
+          {!UI_FULL && <DownloadBar onDownload={handleDownload} onReset={handleReset} />}
         </div>
       </ThemeProvider>
     );
   }
 
   return (
-    <ThemeProvider scheme={DEFAULT_SCHEME}>
+    <ThemeProvider scheme={DEFAULT_SCHEME} forcedMode={VIEW.theme}>
       <LandingPanel
         phase={phase}
         csvFile={csvFile}
@@ -282,7 +298,7 @@ function LandingPanel({ phase, csvFile, yamlFile, onCsvChange, onYamlChange, onU
 
         {/* Example buttons */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
-          {EXAMPLES.map(ex => (
+          {EXAMPLES.filter(ex => !ex.hidden).map(ex => (
             <button
               key={ex.label}
               onClick={() => onExample(ex)}

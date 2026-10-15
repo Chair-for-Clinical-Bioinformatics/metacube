@@ -15,12 +15,20 @@ axes:
 
 size_colour: "count"
 count_label: "cells"
+count_label_legend: "Number of cells"   # colour-legend title
+color_scale: "sqrt"   # counts span orders of magnitude; sqrt spreads them over the ramp
 axis_order: "cluster"
+
+# Publication titles/citations per collection (scripts/build_census_collections.py).
+metadata_csv: "census_collections.csv"
+metadata_join_key: "collection_id"
 
 info_box:
   columns:
-    dataset: "dataset_title"
-    doi:     "collection_doi"
+    title:    "publication"      # collection (= publication) title, from metadata_csv
+    citation: "citation"         # e.g. "Siletti et al. (2023) Science"
+    dataset:  "dataset_title"    # the individual Census dataset (H5AD) within it
+    doi:      "collection_doi"
 
 drilldown:
   type: "zoom"
@@ -30,9 +38,13 @@ drilldown:
       column: "tissue"
       max_labels: 30
   treemap:
-    # Concentration unit = dataset (one H5AD = dataset_id), labelled by title.
-    category_column: "dataset_id"
-    category_label_column: "dataset_title"
+    # Source unit for concentration (N_eff / D) and the treemap tiles: the
+    # publication (Census collection). Datasets split from one study are not
+    # independent, so they count as one source; they are listed per publication
+    # in the info box. Tiles are labelled by citation (via metadata_csv).
+    category_column: "collection_id"
+    category_label_column: "citation"
+    category_noun: "publications"
     subcategory_column: "cell_type"
     count_column: "count"
 slice:

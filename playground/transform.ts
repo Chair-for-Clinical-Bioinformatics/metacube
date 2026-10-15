@@ -89,6 +89,12 @@ interface RawConfig {
   color_aggregation?: "sum" | "mean";
   color_label?: string;
   count_label?: string;
+  /** Legend title for the colour scale, e.g. "Number of cells". Defaults to "Number of <count_label>". */
+  count_label_legend?: string;
+  /** Value compression before the colour ramp: "linear" (default), "sqrt" or "log". */
+  color_scale?: "linear" | "sqrt" | "log";
+  /** In-plane orientation of the 3D axis value labels: "auto" (perpendicular to the on-screen axis, default) or "horizontal". */
+  label_rotation?: "auto" | "horizontal";
   /** Either a palette name string ("RdYlGn") or a full palette object. */
   color_palette?: string | ColorPaletteConfig;
   colors?: Record<string, string>;
@@ -190,7 +196,7 @@ export async function transformCsvYaml(
     // For zoom drilldown, scope by outer+inner axes so datasets from different
     // outer cells don't bleed into each other's info panels.
     const outerAxesForInfo = cfg.drilldown?.type === "zoom" && cfg.drilldown.axes ? cfg.axes : undefined;
-    result.infoBox = buildInfo(filtered, infoAxes, cfg.info_box.columns ?? {}, outerAxesForInfo);
+    result.infoBox = buildInfo(filtered, infoAxes, cfg.info_box.columns ?? {}, outerAxesForInfo, sourceColumn(cfg));
   }
 
   if (chartsData) {
@@ -598,12 +604,15 @@ function buildConfig(cfg: RawConfig): CubeConfig {
     }
     if (cfg.color_aggregation) config.colorAggregation = cfg.color_aggregation;
     if (cfg.color_label) config.colorLabel = cfg.color_label;
+    if (cfg.color_scale) config.colorScale = cfg.color_scale;
   } else if (cfg.uniform_cell_color) {
     // Only pin an explicit cell colour; otherwise leave undefined so the cube
     // falls back to the active theme's cell_default (reactive to light/dark).
     config.uniformCellColor = cfg.uniform_cell_color;
   }
   if (cfg.count_label) config.countLabel = cfg.count_label;
+  if (cfg.count_label_legend) config.countLabelLegend = cfg.count_label_legend;
+  if (cfg.label_rotation) config.labelRotation = cfg.label_rotation;
 
   if (cfg.ghost_datasets) config.ghost_datasets = cfg.ghost_datasets;
   if (cfg.accent_datasets) config.accent_datasets = cfg.accent_datasets;
@@ -611,6 +620,12 @@ function buildConfig(cfg: RawConfig): CubeConfig {
   if (cfg.accent_label) config.accent_label = cfg.accent_label;
 
   if (cfg.slice) {
+    // The slice sums the per-record magnitude; records carry only size/colour, so
+    // a count_column other than the magnitude column cannot be honoured.
+    const magnitudeCol = cfg.size_colour ?? cfg.colour;
+    if (cfg.slice.count_column && cfg.slice.count_column !== magnitudeCol) {
+      console.warn(`slice.count_column "${cfg.slice.count_column}" is ignored: the 2D slice sums the magnitude column (${magnitudeCol ?? "row count"}).`);
+    }
     const countField = cfg.slice.count_column && cfg.slice.count_column === cfg.size_colour
       ? "color" as const
       : "size" as const;
@@ -825,11 +840,18 @@ function resolveInfoAxes(cfg: RawConfig): RawConfig["axes"] {
   };
 }
 
+/** Column identifying a record's source (the treemap's grouping unit), if configured. */
+function sourceColumn(cfg: RawConfig): string | undefined {
+  const d = cfg.drilldown;
+  return d?.treemap?.category_column ?? (d?.type === "treemap" ? d.category_column : undefined) ?? cfg.datasets_column;
+}
+
 function buildInfo(
   rows: Row[],
   axes: RawConfig["axes"],
   columns: Record<string, string>,
   outerAxes?: RawConfig["axes"],
+  sourceCol?: string,
 ): Record<string, Record<string, string>[]> {
   if (Object.keys(columns).length === 0) return {};
   const { x, y, z } = axes;
@@ -848,6 +870,10 @@ function buildInfo(
         if (r[col] !== undefined && r[col] !== "") entry[field] = r[col];
       }
       if (Object.keys(entry).length === 0) continue;
+      // Tag each entry with its source id (the treemap's grouping unit) so the info
+      // box can group, count and highlight by source. Entries are deduplicated on
+      // all fields, so a source keeps one entry per distinct dataset within it.
+      if (sourceCol && r[sourceCol]) entry._source = r[sourceCol];
       const fingerprint = JSON.stringify(entry);
       if (!seen.has(fingerprint)) { seen.add(fingerprint); entries.push(entry); }
     }
